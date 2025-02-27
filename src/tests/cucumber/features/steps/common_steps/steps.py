@@ -1,7 +1,6 @@
 # Gherkins test steps definitions
 
 import os
-import pathlib
 
 from behave import *
 from common_steps.assertions import *
@@ -22,12 +21,6 @@ def run_antares(context):
     context.named_mps_problems = False
     context.parallel = False
     run_simulation(context)
-
-
-def after_feature(context, feature):
-    # post-processing a test: clean up output files to avoid taking up all the disk space
-    if (context.output_path != None):
-        pathlib.Path.rmdir(context.output_path)
 
 
 @then('the simulation succeeds')
