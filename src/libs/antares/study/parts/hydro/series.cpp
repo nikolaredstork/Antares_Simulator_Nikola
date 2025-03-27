@@ -260,7 +260,6 @@ void DataSeriesHydro::resizeTSinDeratedMode(bool derated,
 
         if (hydroPmax == Parameters::Compatibility::HydroPmax::Hourly)
         {
-
             maxHourlyGenPower.averageTimeseries();
             maxHourlyPumpPower.averageTimeseries();
         }
