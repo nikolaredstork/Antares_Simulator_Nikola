@@ -196,7 +196,9 @@ void DataSeriesHydro::buildHourlyMaxPowerFromDailyTS(
     ConvertDailyTSintoHourlyTS(DailyMaxPumpPower, maxHourlyPumpPower.timeSeries[0]);
 }
 
-bool DataSeriesHydro::saveToFolder(const AreaName& areaID, const AnyString& folder) const
+bool DataSeriesHydro::saveToFolder(const AreaName& areaID,
+                                   const AnyString& folder,
+                                   Parameters::Compatibility::HydroPmax hydroPmax) const
 {
     String buffer;
     buffer.clear() << folder << SEP << areaID;
@@ -212,10 +214,14 @@ bool DataSeriesHydro::saveToFolder(const AreaName& areaID, const AnyString& fold
         ret = storage.timeSeries.saveToCSVFile(buffer, 0) && ret;
         buffer.clear() << folder << SEP << areaID << SEP << "mingen.txt";
         ret = mingen.timeSeries.saveToCSVFile(buffer, 0) && ret;
-        buffer.clear() << folder << SEP << areaID << SEP << "maxHourlyGenPower.txt";
-        ret = maxHourlyGenPower.timeSeries.saveToCSVFile(buffer, 0) && ret;
-        buffer.clear() << folder << SEP << areaID << SEP << "maxHourlyPumpPower.txt";
-        ret = maxHourlyPumpPower.timeSeries.saveToCSVFile(buffer, 0) && ret;
+
+        if (hydroPmax == Parameters::Compatibility::HydroPmax::Hourly)
+        {
+            buffer.clear() << folder << SEP << areaID << SEP << "maxHourlyGenPower.txt";
+            ret = maxHourlyGenPower.timeSeries.saveToCSVFile(buffer, 0) && ret;
+            buffer.clear() << folder << SEP << areaID << SEP << "maxHourlyPumpPower.txt";
+            ret = maxHourlyPumpPower.timeSeries.saveToCSVFile(buffer, 0) && ret;
+        }
 
         return ret;
     }
@@ -238,6 +244,7 @@ uint DataSeriesHydro::TScount() const
 
 void DataSeriesHydro::resizeTSinDeratedMode(bool derated,
                                             StudyVersion studyVersion,
+                                            Parameters::Compatibility::HydroPmax hydroPmax,
                                             bool usedBySolver)
 {
     if (!(derated && usedBySolver))
@@ -251,9 +258,9 @@ void DataSeriesHydro::resizeTSinDeratedMode(bool derated,
     {
         mingen.averageTimeseries();
 
-        if (studyVersion >= StudyVersion(9, 1))
-        { // Check: Maybe we don't need check for 9.1 version, since we have conversion
-            // This two objects will be created regardless of the version
+        if (hydroPmax == Parameters::Compatibility::HydroPmax::Hourly)
+        {
+
             maxHourlyGenPower.averageTimeseries();
             maxHourlyPumpPower.averageTimeseries();
         }

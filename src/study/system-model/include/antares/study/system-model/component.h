@@ -22,6 +22,8 @@
 
 #include <map>
 
+#include <antares/expressions/visitors/EvaluationContext.h>
+
 #include "model.h"
 
 namespace Antares::Study::SystemModel
@@ -31,12 +33,21 @@ namespace Antares::Study::SystemModel
  * Defines the attributes of the Component class
  * Made into a struct to avoid duplication in ComponentBuilder
  */
-struct ComponentData
+class ComponentData
 {
+public:
     std::string id;
-    Model* model = nullptr;
-    std::map<std::string, double> parameter_values;
+    const Model* model = nullptr;
+    std::map<std::string, Expressions::Visitors::ParameterTypeAndValue> parameter_values;
     std::string scenario_group_id;
+
+    void reset()
+    {
+        id.clear();
+        model = nullptr;
+        parameter_values.clear();
+        scenario_group_id.clear();
+    }
 };
 
 /**
@@ -53,19 +64,25 @@ public:
         return data_.id;
     }
 
-    Model* getModel() const
+    const Model* getModel() const
     {
         return data_.model;
     }
 
-    double getParameterValue(const std::string& parameter_id) const
+    const std::map<std::string, Expressions::Visitors::ParameterTypeAndValue>& getParameterValues()
+      const
+    {
+        return data_.parameter_values;
+    }
+
+    std::string getParameterValue(const std::string& parameter_id) const
     {
         if (!data_.parameter_values.contains(parameter_id))
         {
             throw std::invalid_argument("Parameter '" + parameter_id + "' not found in component '"
                                         + data_.id + "'");
         }
-        return data_.parameter_values.at(parameter_id);
+        return data_.parameter_values.at(parameter_id).value;
     }
 
     std::string getScenarioGroupId() const
@@ -84,10 +101,11 @@ class ComponentBuilder
 {
 public:
     ComponentBuilder& withId(std::string_view id);
-    ComponentBuilder& withModel(Model* model);
-    ComponentBuilder& withParameterValues(std::map<std::string, double> parameter_values);
+    ComponentBuilder& withModel(const Model* model);
+    ComponentBuilder& withParameterValues(
+      std::map<std::string, Expressions::Visitors::ParameterTypeAndValue> parameter_values);
     ComponentBuilder& withScenarioGroupId(const std::string& scenario_group_id);
-    Component build() const;
+    Component build();
 
 private:
     ComponentData data_;

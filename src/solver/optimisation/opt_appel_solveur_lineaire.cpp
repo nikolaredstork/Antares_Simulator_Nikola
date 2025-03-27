@@ -25,9 +25,10 @@
 
 #include <antares/antares/fatal-error.h>
 #include <antares/logs/logs.h>
+#include "antares/optimisation/linear-problem-api/linearProblemBuilder.h"
+#include "antares/optimisation/linear-problem-data-impl/linearProblemData.h"
 #include "antares/optimization-options/options.h"
 #include "antares/solver/infeasible-problem-analysis/unfeasible-pb-analyzer.h"
-#include "antares/solver/modeler/api/linearProblemBuilder.h"
 #include "antares/solver/optimisation/LegacyFiller.h"
 #include "antares/solver/optimisation/LegacyOrtoolsLinearProblem.h"
 #include "antares/solver/optimisation/opt_structure_probleme_a_resoudre.h"
@@ -36,8 +37,9 @@
 #include "antares/solver/utils/mps_utils.h"
 
 using namespace operations_research;
-using namespace Antares::Solver::Modeler::Api;
-using namespace Antares::Solver::Modeler::OrtoolsImpl;
+using namespace Antares::Optimisation::LinearProblemApi;
+using namespace Antares::Optimisation::LinearProblemDataImpl;
+using namespace Antares::Optimisation::LinearProblemMpsolverImpl;
 
 using Antares::Solver::IResultWriter;
 using Antares::Solver::Optimization::OptimizationOptions;
@@ -80,6 +82,20 @@ struct SimplexResult
     mpsWriterFactory mps_writer_factory;
 };
 
+// Returns a non-owning pointer
+MPSolver* convertToMPSolver(const Optimization::PROBLEME_SIMPLEXE_NOMME& pb,
+                            const OptimizationOptions& options)
+{
+    LegacyOrtoolsLinearProblem ortoolsProblem(pb.isMIP(), options.ortoolsSolver);
+    LegacyFiller legacyOrtoolsFiller(&pb);
+    std::vector<LinearProblemFiller*> fillersCollection = {&legacyOrtoolsFiller};
+    LinearProblemData LP_Data;
+    FillContext fillCtx(0, 167);
+    LinearProblemBuilder linearProblemBuilder(fillersCollection);
+    linearProblemBuilder.build(ortoolsProblem, LP_Data, fillCtx);
+    return ortoolsProblem.getMpSolver();
+}
+
 static SimplexResult OPT_TryToCallSimplex(const OptimizationOptions& options,
                                           PROBLEME_HEBDO* problemeHebdo,
                                           Optimization::PROBLEME_SIMPLEXE_NOMME& Probleme,
@@ -90,7 +106,7 @@ static SimplexResult OPT_TryToCallSimplex(const OptimizationOptions& options,
                                           IResultWriter& writer)
 {
     const auto& ProblemeAResoudre = problemeHebdo->ProblemeAResoudre;
-    auto solver = (MPSolver*)(ProblemeAResoudre->ProblemesSpx[NumIntervalle]);
+    auto* solver = ProblemeAResoudre->ProblemesSpx[NumIntervalle];
 
     const int opt = optimizationNumber - 1;
     assert(opt >= 0 && opt < 2);
@@ -189,18 +205,9 @@ static SimplexResult OPT_TryToCallSimplex(const OptimizationOptions& options,
 
     Probleme.NombreDeContraintesCoupes = 0;
 
-    auto ortoolsProblem = std::make_unique<LegacyOrtoolsLinearProblem>(Probleme.isMIP(),
-                                                                       options.ortoolsSolver);
-    auto legacyOrtoolsFiller = std::make_unique<LegacyFiller>(&Probleme);
-    std::vector<LinearProblemFiller*> fillersCollection = {legacyOrtoolsFiller.get()};
-    LinearProblemData LP_Data;
-    FillContext fillCtx(0, 167);
-    LinearProblemBuilder linearProblemBuilder(fillersCollection);
-
     if (solver == nullptr)
     {
-        linearProblemBuilder.build(*ortoolsProblem, LP_Data, fillCtx);
-        solver = ortoolsProblem->getMpSolver();
+        solver = convertToMPSolver(Probleme, options);
     }
     const std::string filename = createMPSfilename(optPeriodStringGenerator, optimizationNumber);
 
@@ -214,12 +221,11 @@ static SimplexResult OPT_TryToCallSimplex(const OptimizationOptions& options,
     mps_writer->runIfNeeded(writer, filename);
 
     TimeMeasurement measure;
-
     const bool keepBasis = (optimizationNumber == PREMIERE_OPTIMISATION);
     solver = ORTOOLS_Simplexe(&Probleme, solver, keepBasis, options);
-    if (solver)
+    if (solver != nullptr)
     {
-        ProblemeAResoudre->ProblemesSpx[NumIntervalle] = (void*)solver;
+        ProblemeAResoudre->ProblemesSpx[NumIntervalle] = solver;
     }
 
     measure.tick();
@@ -353,16 +359,7 @@ bool OPT_AppelDuSimplexe(const OptimizationOptions& options,
 
         Probleme.SetUseNamedProblems(true);
 
-        auto ortoolsProblem = std::make_unique<LegacyOrtoolsLinearProblem>(Probleme.isMIP(),
-                                                                           options.ortoolsSolver);
-        auto legacyOrtoolsFiller = std::make_unique<LegacyFiller>(&Probleme);
-        std::vector<LinearProblemFiller*> fillersCollection = {legacyOrtoolsFiller.get()};
-        LinearProblemData LP_Data;
-        FillContext fillCtx(0, 167);
-        LinearProblemBuilder linearProblemBuilder(fillersCollection);
-
-        linearProblemBuilder.build(*ortoolsProblem, LP_Data, fillCtx);
-        auto MPproblem = std::shared_ptr<MPSolver>(ortoolsProblem->getMpSolver());
+        std::unique_ptr<MPSolver> MPproblem(convertToMPSolver(Probleme, options));
 
         auto analyzer = makeUnfeasiblePbAnalyzer();
         analyzer->run(MPproblem.get());

@@ -192,9 +192,12 @@ static bool AreaListSaveThermalDataToFile(const AreaList& list, const AnyString&
     return ini.save(filename);
 }
 
-static bool AreaListSaveToFolderSingleArea(const Area& area, Clob& buffer, const AnyString& folder)
+static bool AreaListSaveToFolderSingleArea(const Area& area,
+                                           const AnyString& folder,
+                                           const Parameters::Compatibility::HydroPmax hydroPmax)
 {
     bool ret = true;
+    Clob buffer;
 
     // A specific folder for general data
     buffer.clear() << folder << SEP << "input" << SEP << "areas" << SEP << area.id;
@@ -273,9 +276,11 @@ static bool AreaListSaveToFolderSingleArea(const Area& area, Clob& buffer, const
         if (area.hydro.series) // Series
         {
             buffer.clear() << folder << SEP << "input" << SEP << "hydro" << SEP << "series";
-            ret = area.hydro.series->saveToFolder(area.id, buffer) && ret;
+            ret = area.hydro.series->saveToFolder(area.id, buffer, hydroPmax) && ret;
+            
             buffer.clear() << folder << SEP << "input" << SEP << "hydro";
             ret = area.hydro.series->reservoirLevels.saveToFolder(area.id, buffer) && ret;
+
         }
     }
 
@@ -764,13 +769,16 @@ bool AreaList::saveToFolder(const AnyString& folder) const
       {
           logs.info() << "Exporting the area " << (area.index + 1) << '/' << areas.size() << ": "
                       << area.name;
-          ret = AreaListSaveToFolderSingleArea(area, buffer, folder) && ret;
+          ret = AreaListSaveToFolderSingleArea(area,
+                                               folder,
+                                               pStudy.parameters.compatibility.hydroPmax)
+                && ret;
       });
 
     // Hydro
     // The hydro files must be saved after the area has been invalidated
     buffer.clear() << folder << SEP << "input" << SEP << "hydro";
-    ret = PartHydro::SaveToFolder(*this, buffer) && ret;
+    ret = PartHydro::SaveToFolder(*this, buffer, pStudy.parameters.compatibility.hydroPmax) && ret;
 
     // update nameid set
     updateNameIDSet();
@@ -888,7 +896,7 @@ static bool AreaListLoadFromFolderSingleArea(Study& study,
     {
         if (!area.ui)
         {
-            area.ui = new AreaUI();
+            area.ui = std::make_unique<AreaUI>();
         }
 
         buffer.clear() << study.folderInput << SEP << "areas" << SEP << area.id << SEP << "ui.ini";
@@ -952,16 +960,24 @@ static bool AreaListLoadFromFolderSingleArea(Study& study,
             ret = area.hydro.series->loadGenerationTS(area.id, hydroSeries, studyVersion) && ret;
         }
 
-        if (studyVersion < StudyVersion(9, 1))
+        switch (study.parameters.compatibility.hydroPmax)
+        {
+        case Parameters::Compatibility::HydroPmax::Daily:
         {
             HydroMaxTimeSeriesReader reader(area.hydro,
                                             area.id.to<std::string>(),
                                             area.name.to<std::string>());
             ret = reader.read(pathHydro.string(), study.usedByTheSolver) && ret;
+            break;
         }
-        else
+        case Parameters::Compatibility::HydroPmax::Hourly:
         {
             ret = area.hydro.series->LoadMaxPower(area.id, hydroSeries) && ret;
+            break;
+        }
+        default:
+            throw std::invalid_argument(
+              "Value not supported for study.parameters.compatibility.hydroPmax");
         }
 
         ret = area.hydro.series->reservoirLevels.loadReservoirLevels(
@@ -973,6 +989,7 @@ static bool AreaListLoadFromFolderSingleArea(Study& study,
 
         area.hydro.series->resizeTSinDeratedMode(study.parameters.derated,
                                                  studyVersion,
+                                                 study.parameters.compatibility.hydroPmax,
                                                  study.usedByTheSolver);
     }
 
@@ -1014,8 +1031,8 @@ static bool AreaListLoadFromFolderSingleArea(Study& study,
         fs::path seriesPath = study.folderInput / "st-storage" / "series"
                               / area.id.to<std::string>();
 
-        ret = area.shortTermStorage.loadSeriesFromFolder(seriesPath) && ret;
-        ret = area.shortTermStorage.validate() && ret;
+        ret = area.shortTermStorage.loadSeriesFromFolder(seriesPath, studyVersion) && ret;
+        ret = area.shortTermStorage.validate(studyVersion) && ret;
     }
 
     // Renewable cluster list
@@ -1194,11 +1211,18 @@ bool AreaList::loadFromFolder(const StudyLoadOptions& options)
 
         if (fs::exists(stsFolder))
         {
-            for (const auto& [id, area]: areas)
+            for (const auto& area: areas | std::views::values)
             {
-                fs::path folder = stsFolder / "clusters" / area->id.c_str();
-
-                ret = area->shortTermStorage.createSTStorageClustersFromIniFile(folder) && ret;
+                fs::path cluster_folder = stsFolder / "clusters" / area->id.c_str();
+                ret = area->shortTermStorage.createSTStorageClustersFromIniFile(cluster_folder)
+                      && ret;
+                // Additional constraints were added from version 9.2
+                if (studyVersion >= StudyVersion(9, 2))
+                {
+                    const auto constraints_folder = stsFolder / "constraints" / area->id.c_str();
+                    ret = area->shortTermStorage.loadAdditionalConstraints(constraints_folder)
+                          && ret;
+                }
             }
         }
         else

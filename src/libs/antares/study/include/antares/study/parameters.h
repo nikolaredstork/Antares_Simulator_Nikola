@@ -77,6 +77,9 @@ public:
     */
     bool loadFromFile(const std::filesystem::path& filename, const StudyVersion& version);
 
+    //! Load data from an INI file
+    bool loadFromINI(const IniFile& ini, const StudyVersion& version);
+
     /*!
     ** \brief Prepare all settings for a simulation
     **
@@ -344,14 +347,6 @@ public:
     //! Write the simulation synthesis into the output
     bool synthesis;
 
-    //! \name Optimization
-    //@{
-    //! Spillage bound
-    bool spillageBound;
-
-    //! Improve units startup
-    bool improveUnitsStartup;
-
     //! Accuracy on correlation
     uint timeSeriesAccuracyOnCorrelation;
 
@@ -397,7 +392,20 @@ public:
         //! Enum to define unfeasible problem behavior \see UnfeasibleProblemBehavior
         UnfeasibleProblemBehavior unfeasibleProblemBehavior;
 
+        bool exportSolutions;
     } include;
+
+    struct Compatibility
+    {
+        enum class HydroPmax
+        {
+            Daily,
+            Hourly
+        };
+        HydroPmax hydroPmax = HydroPmax::Daily;
+    };
+
+    Compatibility compatibility;
 
     // Shedding
     struct
@@ -497,9 +505,6 @@ public:
     Antares::Solver::Optimization::OptimizationOptions optOptions;
 
 private:
-    //! Load data from an INI file
-    bool loadFromINI(const IniFile& ini, const StudyVersion& version);
-
     void resetPlayedYears(uint nbOfYears);
 
     //! MC year weight for MC synthesis
@@ -520,6 +525,9 @@ const char* SimulationModeToCString(SimulationMode mode);
 ** \return True if the conversion succeeded, false otherwise
 */
 bool StringToSimulationMode(SimulationMode& mode, Yuni::CString<20, false> text);
+
+const char* CompatibilityHydroPmaxToCString(const Parameters::Compatibility::HydroPmax);
+bool StringToCompatibilityHydroPmax(Parameters::Compatibility::HydroPmax&, const std::string& text);
 
 } // namespace Antares::Data
 

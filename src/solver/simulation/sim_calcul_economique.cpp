@@ -34,11 +34,14 @@
 using namespace Antares;
 using namespace Antares::Data;
 
+constexpr double LEVEL_TOLERANCE_MWH = 1.e-6;
+
 static void importShortTermStorages(
   const AreaList& areas,
   std::vector<::ShortTermStorage::AREA_INPUT>& ShortTermStorageOut)
 {
     int clusterGlobalIndex = 0;
+    int constraintGlobalIndex = 0;
     for (uint areaIndex = 0; areaIndex != areas.size(); areaIndex++)
     {
         ShortTermStorageOut[areaIndex].resize(areas[areaIndex]->shortTermStorage.count());
@@ -59,6 +62,19 @@ static void importShortTermStorages(
             toInsert.penalizeVariationInjection = st.properties.penalizeVariationInjection;
             toInsert.penalizeVariationWithdrawal = st.properties.penalizeVariationWithdrawal;
             toInsert.name = st.properties.name;
+            for (const auto& constraint: st.additionalConstraints)
+            {
+                if (constraint.enabled)
+                {
+                    auto newConstraint = constraint;
+                    for (auto& c: newConstraint.constraints)
+                    {
+                        c.globalIndex = constraintGlobalIndex;
+                        ++constraintGlobalIndex;
+                    }
+                    toInsert.additionalConstraints.push_back(std::move(newConstraint));
+                }
+            }
 
             toInsert.series = st.series;
 
@@ -108,6 +124,7 @@ void SIM_InitialisationProblemeHebdo(Data::Study& study,
     problem.NombreDeContraintesCouplantes = activeConstraints.size();
 
     problem.ExportMPS = study.parameters.include.exportMPS;
+    problem.exportSolutions = study.parameters.include.exportSolutions;
     problem.ExportStructure = study.parameters.include.exportStructure;
     problem.NamedProblems = study.parameters.namedProblems;
     problem.exportMPSOnError = Data::exportMPS(parameters.include.unfeasibleProblemBehavior);
@@ -151,6 +168,10 @@ void SIM_InitialisationProblemeHebdo(Data::Study& study,
 
         problem.CoutDeDefaillanceNegative[i] = area.thermal.spilledEnergyCost;
 
+        // Hydraulic
+        problem.CoutDeDebordement[i] = area.thermal.spilledEnergyCost
+                                       + area.hydro.overflowSpilledCostDifference;
+
         problem.DefaillanceNegativeUtiliserPMinThermique[i] = (anoOtherDispatchPower
                                                                & area.nodalOptimization)
                                                               != 0;
@@ -180,17 +201,13 @@ void SIM_InitialisationProblemeHebdo(Data::Study& study,
                                                                               .useHeuristicTarget
                                                                            || area.hydro.useLeeway);
 
-        problem.CaracteristiquesHydrauliques[i].SuiviNiveauHoraire
-          = area.hydro.reservoirManagement && (problem.OptimisationAuPasHebdomadaire)
-            && (!area.hydro.useHeuristicTarget
-                || problem.CaracteristiquesHydrauliques[i].PresenceDePompageModulable);
+        problem.CaracteristiquesHydrauliques[i].SuiviNiveauHoraire = area.hydro.reservoirManagement;
 
         problem.CaracteristiquesHydrauliques[i].DirectLevelAccess = false;
         problem.CaracteristiquesHydrauliques[i].AccurateWaterValue = false;
         if (problem.WaterValueAccurate && area.hydro.useWaterValue)
         {
             problem.CaracteristiquesHydrauliques[i].AccurateWaterValue = true;
-            problem.CaracteristiquesHydrauliques[i].SuiviNiveauHoraire = true;
             problem.CaracteristiquesHydrauliques[i].DirectLevelAccess = true;
         }
 
@@ -478,7 +495,7 @@ void SIM_RenseignementProblemeHebdo(const Study& study,
               = problem.CaracteristiquesHydrauliques[k]
                   .NiveauInitialReservoir; /*for first 24-hour optim*/
             double nivInit = problem.CaracteristiquesHydrauliques[k].NiveauInitialReservoir;
-            if (nivInit < 0.)
+            if (nivInit < -LEVEL_TOLERANCE_MWH)
             {
                 std::ostringstream msg;
                 msg << "Area " << area.name << ", week " << weekInTheYear + 1
@@ -486,7 +503,7 @@ void SIM_RenseignementProblemeHebdo(const Study& study,
                 throw FatalError(msg.str());
             }
 
-            if (nivInit > area.hydro.reservoirCapacity)
+            if (nivInit > area.hydro.reservoirCapacity + LEVEL_TOLERANCE_MWH)
             {
                 std::ostringstream msg;
                 msg << "Area " << area.name << ", week " << weekInTheYear + 1
@@ -838,12 +855,6 @@ void SIM_RenseignementProblemeHebdo(const Study& study,
                     }
 
                     marginGen = weekGenerationTarget;
-
-                    if (problem.CaracteristiquesHydrauliques[k].NiveauInitialReservoir
-                        < weekTarget_tmp)
-                    {
-                        marginGen = problem.CaracteristiquesHydrauliques[k].NiveauInitialReservoir;
-                    }
                 }
 
                 if (not problem.CaracteristiquesHydrauliques[k].TurbinageEntreBornes)

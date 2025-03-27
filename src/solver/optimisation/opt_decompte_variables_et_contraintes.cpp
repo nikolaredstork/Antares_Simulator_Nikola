@@ -26,6 +26,10 @@ using namespace Antares;
 
 void OPT_DecompteDesVariablesEtDesContraintesCoutsDeDemarrage(PROBLEME_HEBDO*);
 
+// This estimate is not very accurate, some constraints may not be enabled
+// in some cases.
+// The counting below should be removed, and we should instead use other methods
+// involving dynamic reallocations, etc.
 int OPT_DecompteDesVariablesEtDesContraintesDuProblemeAOptimiser(PROBLEME_HEBDO* problemeHebdo)
 {
     const auto& ProblemeAResoudre = problemeHebdo->ProblemeAResoudre;
@@ -130,36 +134,36 @@ int OPT_DecompteDesVariablesEtDesContraintesDuProblemeAOptimiser(PROBLEME_HEBDO*
         char Pump = problemeHebdo->CaracteristiquesHydrauliques[pays].PresenceDePompageModulable;
         char TurbEntreBornes = problemeHebdo->CaracteristiquesHydrauliques[pays]
                                  .TurbinageEntreBornes;
-        char MonitorHourlyLev = problemeHebdo->CaracteristiquesHydrauliques[pays]
-                                  .SuiviNiveauHoraire;
 
-        if (!Pump && !TurbEntreBornes && !MonitorHourlyLev
+        if (!Pump && !TurbEntreBornes
             && problemeHebdo->CaracteristiquesHydrauliques[pays].PresenceDHydrauliqueModulable)
         {
             ProblemeAResoudre->NombreDeContraintes++;
         }
 
-        if (Pump && !TurbEntreBornes && !MonitorHourlyLev)
+        ProblemeAResoudre->NombreDeContraintes += nombreDePasDeTempsPourUneOptimisation;
+
+        if (Pump && !TurbEntreBornes)
         {
             ProblemeAResoudre->NombreDeContraintes += 2; /* 2 constraints bounding the overall
                                                             energy generated over the period (10a in
                                                             the reference document) */
-            ProblemeAResoudre
-              ->NombreDeContraintes++; /* 1 constraint setting the level variation over the period
-                                    (10b in the reference document) */
-            ProblemeAResoudre
-              ->NombreDeContraintes++; /* 1 constraint bounding the overall energy pumped over the
-                                    period (10c in the reference document) */
+            ProblemeAResoudre->NombreDeContraintes++;
+            /* 1 constraint setting the level variation over the period
+                                               (10b in the reference document) */
+            ProblemeAResoudre->NombreDeContraintes++;
+            /* 1 constraint bounding the overall energy pumped over the
+                                               period (10c in the reference document) */
         }
 
-        if (!Pump && TurbEntreBornes && !MonitorHourlyLev)
+        if (!Pump && TurbEntreBornes)
         {
             ProblemeAResoudre->NombreDeContraintes++;
 
             ProblemeAResoudre->NombreDeContraintes++;
         }
 
-        if (Pump && TurbEntreBornes && !MonitorHourlyLev)
+        if (Pump && TurbEntreBornes)
         {
             ProblemeAResoudre->NombreDeContraintes++;
 
@@ -168,7 +172,7 @@ int OPT_DecompteDesVariablesEtDesContraintesDuProblemeAOptimiser(PROBLEME_HEBDO*
             ProblemeAResoudre->NombreDeContraintes++;
         }
 
-        if (!Pump && TurbEntreBornes && MonitorHourlyLev)
+        if (!Pump && TurbEntreBornes)
         {
             ProblemeAResoudre->NombreDeContraintes++;
 
@@ -177,7 +181,7 @@ int OPT_DecompteDesVariablesEtDesContraintesDuProblemeAOptimiser(PROBLEME_HEBDO*
             ProblemeAResoudre->NombreDeContraintes += nombreDePasDeTempsPourUneOptimisation;
         }
 
-        if (Pump && TurbEntreBornes && MonitorHourlyLev)
+        if (Pump && TurbEntreBornes)
         {
             ProblemeAResoudre->NombreDeContraintes++;
 
@@ -187,27 +191,21 @@ int OPT_DecompteDesVariablesEtDesContraintesDuProblemeAOptimiser(PROBLEME_HEBDO*
 
             ProblemeAResoudre->NombreDeContraintes += nombreDePasDeTempsPourUneOptimisation;
         }
-        if (Pump && !TurbEntreBornes && MonitorHourlyLev)
+        if (Pump && !TurbEntreBornes)
         {
             ProblemeAResoudre->NombreDeContraintes += 2; /* 2 constraints bounding the overall
                                                             energy generated over the period (10a in
                                                             the reference document) */
-            ProblemeAResoudre
-              ->NombreDeContraintes++; /* 1 constraint setting the level variation over the period
-                                    (10b in the reference document) */
-            ProblemeAResoudre
-              ->NombreDeContraintes++; /* 1 constraint bounding the overall energy pumped over the
-                                    period (10c in the reference document) */
-            ProblemeAResoudre->NombreDeContraintes
-              += nombreDePasDeTempsPourUneOptimisation; /* T constraints expressing the level hourly
-                                                     variations (14a in the reference
-                                                     document) */
-        }
-        if (!Pump && !TurbEntreBornes && MonitorHourlyLev)
-        {
-            const std::string areaName(problemeHebdo->NomsDesPays[pays]);
-            throw FatalError("Level explicit modeling requires flexible generation in area "
-                             + areaName);
+            ProblemeAResoudre->NombreDeContraintes++;
+            /* 1 constraint setting the level variation over the period
+                                               (10b in the reference document) */
+            ProblemeAResoudre->NombreDeContraintes++;
+            /* 1 constraint bounding the overall energy pumped over the
+                                               period (10c in the reference document) */
+            ProblemeAResoudre->NombreDeContraintes += nombreDePasDeTempsPourUneOptimisation;
+            /* T constraints expressing the level hourly
+                                                                variations (14a in the reference
+                                                                document) */
         }
     }
     // Short term storage
@@ -244,6 +242,14 @@ int OPT_DecompteDesVariablesEtDesContraintesDuProblemeAOptimiser(PROBLEME_HEBDO*
                     ProblemeAResoudre->NombreDeVariables += nombreDePasDeTempsPourUneOptimisation;
                     ProblemeAResoudre->NombreDeContraintes
                       += 2 * nombreDePasDeTempsPourUneOptimisation;
+                }
+                if (!storage.additionalConstraints.empty())
+                {
+                    for (const auto& additionalConstraints: storage.additionalConstraints)
+                    {
+                        ProblemeAResoudre->NombreDeContraintes += additionalConstraints
+                                                                    .enabledConstraints();
+                    }
                 }
             }
         }

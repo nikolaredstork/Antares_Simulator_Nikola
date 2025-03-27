@@ -23,10 +23,12 @@
 #include <map>
 #include <vector>
 
+#include <antares/expressions/expression.h>
+
 #include "constraint.h"
-#include "expression.h"
 #include "parameter.h"
 #include "port.h"
+#include "portFieldDefinition.h"
 #include "variable.h"
 
 namespace Antares::Study::SystemModel
@@ -36,6 +38,7 @@ namespace Antares::Study::SystemModel
  * Defines a model that can be referenced by actual components.
  * A model defines the behaviour of those components.
  */
+// TODO: add unit tests for this class
 class Model
 {
 public:
@@ -69,12 +72,18 @@ public:
 
     const std::map<std::string, Variable>& Variables() const
     {
+        // TODO : convert to vector?
         return variables_;
     }
 
     const std::map<std::string, Port>& Ports() const
     {
         return ports_;
+    }
+
+    const std::map<std::string, PortFieldDefinition>& PortFieldDefinitions() const
+    {
+        return portFieldDefinitions_;
     }
 
 private:
@@ -86,6 +95,7 @@ private:
     std::map<std::string, Variable> variables_;
     std::map<std::string, Constraint> constraints_;
     std::map<std::string, Port> ports_;
+    std::map<std::string, PortFieldDefinition> portFieldDefinitions_;
 };
 
 class ModelBuilder
@@ -99,6 +109,7 @@ public:
     Model build();
 
     ModelBuilder& withConstraints(std::vector<Constraint>&& constraints);
+    ModelBuilder& withPortFieldDefinitions(std::vector<PortFieldDefinition>&& portFieldDefinitions);
 
 private:
     Model model_;

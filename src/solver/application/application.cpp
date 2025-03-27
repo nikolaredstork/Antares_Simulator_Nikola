@@ -161,9 +161,6 @@ void Application::readDataForTheStudy(Data::StudyLoadOptions& options)
 
     Antares::Solver::initializeSignalHandlers(resultWriter);
 
-    // Save about-the-study files (comments, notes, etc.)
-    study.saveAboutTheStudy(*resultWriter);
-
     // Name of the simulation (again, if the value has been overwritten)
     if (!pSettings.simulationName.empty())
     {
@@ -231,6 +228,8 @@ void Application::readDataForTheStudy(Data::StudyLoadOptions& options)
     ScenarioBuilderOwner(study).callScenarioBuilder();
 }
 
+// gp : here we don't "start simulation", but we mainly read input data for the simulation to
+// gp : be executed a bit later.
 void Application::startSimulation(Data::StudyLoadOptions& options)
 {
 // Starting !
@@ -374,6 +373,9 @@ void Application::execute()
     {
         return;
     }
+
+    // Save about-the-study files (comments, notes, etc.)
+    pStudy->saveAboutTheStudy(*resultWriter);
 
     SystemMemoryLogger memoryReport;
     memoryReport.interval(1000 * 60 * 5); // 5 minutes

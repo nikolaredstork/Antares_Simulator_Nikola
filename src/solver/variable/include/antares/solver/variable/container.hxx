@@ -36,36 +36,26 @@ namespace Variable
 namespace Container
 {
 template<class NextT>
-inline List<NextT>::List()
-{
-}
-
-template<class NextT>
-inline List<NextT>::~List()
-{
-}
-
-template<class NextT>
 inline void List<NextT>::initializeFromStudy(Data::Study& study)
 {
     // Store a pointer to the current study
     pStudy = &study;
     // Next
-    NextType::initializeFromStudy(study);
+    NextT::initializeFromStudy(study);
 }
 
 template<class NextT>
 inline void List<NextT>::initializeFromArea(Data::Study* study, Data::Area* area)
 {
     // Ask to the first variable to do it
-    NextType::initializeFromArea(study, area);
+    NextT::initializeFromArea(study, area);
 }
 
 template<class NextT>
 inline void List<NextT>::initializeFromLink(Data::Study* study, Data::AreaLink* link)
 {
     // Next
-    NextType::initializeFromAreaLink(study, link);
+    NextT::initializeFromAreaLink(study, link);
 }
 
 template<class NextT>
@@ -74,38 +64,38 @@ inline void List<NextT>::initializeFromThermalCluster(Data::Study* study,
                                                       Data::ThermalCluster* cluster)
 {
     // Next
-    NextType::initializeFromThermalCluster(study, area, cluster);
+    NextT::initializeFromThermalCluster(study, area, cluster);
 }
 
 template<class NextT>
 inline void List<NextT>::simulationBegin()
 {
-    NextType::simulationBegin();
+    NextT::simulationBegin();
 }
 
 template<class NextT>
 inline void List<NextT>::simulationEnd()
 {
-    NextType::simulationEnd();
+    NextT::simulationEnd();
 }
 
 template<class NextT>
 inline void List<NextT>::yearBegin(unsigned int year, unsigned int numSpace)
 {
-    NextType::yearBegin(year, numSpace);
+    NextT::yearBegin(year, numSpace);
 }
 
 template<class NextT>
 inline void List<NextT>::yearEnd(unsigned int year, unsigned int numSpace)
 {
-    NextType::yearEnd(year, numSpace);
+    NextT::yearEnd(year, numSpace);
 }
 
 template<class NextT>
 inline void List<NextT>::computeSummary(std::map<unsigned int, unsigned int>& numSpaceToYear,
                                         unsigned int nbYearsForCurrentSummary)
 {
-    NextType::computeSummary(numSpaceToYear, nbYearsForCurrentSummary);
+    NextT::computeSummary(numSpaceToYear, nbYearsForCurrentSummary);
 }
 
 template<class NextT>
@@ -115,7 +105,7 @@ inline void List<NextT>::yearEndSpatialAggregates(V& allVars,
                                                   unsigned int numSpace)
 {
     // Next variable
-    NextType::template yearEndSpatialAggregates(allVars, year, numSpace);
+    NextT::yearEndSpatialAggregates(allVars, year, numSpace);
 }
 
 template<class NextT>
@@ -123,7 +113,7 @@ template<class V, class SetT>
 inline void List<NextT>::yearEndSpatialAggregates(V& allVars, unsigned int year, const SetT& set)
 {
     // Next variable
-    NextType::template yearEndSpatialAggregates(allVars, year, set);
+    NextT::yearEndSpatialAggregates(allVars, year, set);
 }
 
 template<class NextT>
@@ -134,9 +124,7 @@ inline void List<NextT>::computeSpatialAggregatesSummary(
   unsigned int nbYearsForCurrentSummary)
 {
     // Next variable
-    NextType::template computeSpatialAggregatesSummary(allVars,
-                                                       numSpaceToYear,
-                                                       nbYearsForCurrentSummary);
+    NextT::computeSpatialAggregatesSummary(allVars, numSpaceToYear, nbYearsForCurrentSummary);
 }
 
 template<class NextT>
@@ -144,7 +132,7 @@ template<class V>
 inline void List<NextT>::simulationEndSpatialAggregates(V& allVars)
 {
     // Next variable
-    NextType::template simulationEndSpatialAggregates(allVars);
+    NextT::simulationEndSpatialAggregates(allVars);
 }
 
 template<class NextT>
@@ -152,50 +140,50 @@ template<class V, class SetT>
 inline void List<NextT>::simulationEndSpatialAggregates(V& allVars, const SetT& set)
 {
     // Next variable
-    NextType::template simulationEndSpatialAggregates(allVars, set);
+    NextT::simulationEndSpatialAggregates(allVars, set);
 }
 
 template<class NextT>
 inline void List<NextT>::hourBegin(unsigned int hourInTheYear)
 {
-    NextType::hourBegin(hourInTheYear);
+    NextT::hourBegin(hourInTheYear);
 }
 
 template<class NextT>
 inline void List<NextT>::weekBegin(State& state)
 {
-    NextType::weekBegin(state);
+    NextT::weekBegin(state);
 }
 
 template<class NextT>
 inline void List<NextT>::weekEnd(State& state)
 {
-    NextType::weekEnd(state);
+    NextT::weekEnd(state);
 }
 
 template<class NextT>
 inline void List<NextT>::hourForEachArea(State& state, unsigned int numSpace)
 {
-    NextType::hourForEachArea(state, numSpace);
+    NextT::hourForEachArea(state, numSpace);
 }
 
 template<class NextT>
 inline void List<NextT>::hourForEachLink(State& state)
 {
-    NextType::hourForEachLink(state);
+    NextT::hourForEachLink(state);
 }
 
 template<class NextT>
 inline void List<NextT>::hourEnd(State& state, unsigned int hourInTheYear)
 {
-    NextType::hourEnd(state, hourInTheYear);
+    NextT::hourEnd(state, hourInTheYear);
 }
 
 template<class NextT>
 template<class SearchVCardT, class O>
 inline void List<NextT>::computeSpatialAggregateWith(O& out)
 {
-    NextType::template computeSpatialAggregateWith<SearchVCardT, O>(out);
+    NextT::template computeSpatialAggregateWith<SearchVCardT, O>(out);
 }
 
 template<class NextT>
@@ -204,7 +192,7 @@ inline void List<NextT>::computeSpatialAggregateWith(O& out,
                                                      const Data::Area* area,
                                                      unsigned int numSpace)
 {
-    NextType::template computeSpatialAggregateWith<SearchVCardT, O>(out, area, numSpace);
+    NextT::template computeSpatialAggregateWith<SearchVCardT, O>(out, area, numSpace);
 }
 
 template<class NextT>
@@ -213,7 +201,7 @@ inline void List<NextT>::retrieveResultsForArea(
   typename Variable::Storage<VCardToFindT>::ResultsType** result,
   const Data::Area* area)
 {
-    NextType::template retrieveResultsForArea<VCardToFindT>(result, area);
+    NextT::template retrieveResultsForArea<VCardToFindT>(result, area);
 }
 
 template<class NextT>
@@ -222,7 +210,7 @@ inline void List<NextT>::retrieveResultsForThermalCluster(
   typename Variable::Storage<VCardToFindT>::ResultsType** result,
   const Data::ThermalCluster* cluster)
 {
-    NextType::template retrieveResultsForThermalCluster<VCardToFindT>(result, cluster);
+    NextT::template retrieveResultsForThermalCluster<VCardToFindT>(result, cluster);
 }
 
 template<class NextT>
@@ -231,7 +219,7 @@ inline void List<NextT>::retrieveResultsForLink(
   typename Variable::Storage<VCardToFindT>::ResultsType** result,
   const Data::AreaLink* link)
 {
-    NextType::template retrieveResultsForLink<VCardToFindT>(result, link);
+    NextT::template retrieveResultsForLink<VCardToFindT>(result, link);
 }
 
 template<class NextT>
@@ -253,7 +241,7 @@ void List<NextT>::buildSurveyReport(SurveyResults& results,
     results.data.filename << ".txt";
 
     // Ask to all variables
-    NextType::buildSurveyReport(results, dataLevel, fileLevel, precision);
+    NextT::buildSurveyReport(results, dataLevel, fileLevel, precision);
 
     // If the column index is still equals to 0, that would mean we have nothing
     // to do (there is no data to write)
@@ -283,7 +271,7 @@ void List<NextT>::buildAnnualSurveyReport(SurveyResults& results,
     results.data.filename.append(".txt", 4);
 
     // Ask to all variables
-    NextType::buildAnnualSurveyReport(results, dataLevel, fileLevel, precision, numSpace);
+    NextT::buildAnnualSurveyReport(results, dataLevel, fileLevel, precision, numSpace);
 
     // If the column index is still equals to 0, that would mean we have nothing
     // to do (there is no data to write)
@@ -304,7 +292,7 @@ void List<NextT>::buildDigest(SurveyResults& results, int digestLevel, int dataL
     results.variableCaption.clear();
 
     // Building the digest
-    NextType::buildDigest(results, digestLevel, dataLevel);
+    NextT::buildDigest(results, digestLevel, dataLevel);
 }
 
 template<class NextT>
@@ -326,32 +314,32 @@ void List<NextT>::exportSurveyResults(bool global,
         logs.info() << "Exporting the annual results";
     }
 
-    auto survey = std::make_shared<SurveyResults>(*pStudy, output, writer);
+    SurveyResults survey(*pStudy, output, writer);
 
     // Year by year ?
-    survey->yearByYearResults = !global;
+    survey.yearByYearResults = !global;
 
     if (global)
     {
         // alias to the type of the report builder
         using Builder = SurveyReportBuilder<true, ListType>;
         // Building the survey results for each possible state
-        Builder::Run(*this, *survey);
+        Builder::Run(*this, survey);
 
         // Exporting the Grid (information about the study)
-        survey->exportGridInfos();
+        survey.exportGridInfos();
 
         // Exporting the digest
         // The digest must be exported after the real report because some values
         // are computed at this moment.
-        Builder::RunDigest(*this, *survey, writer);
+        Builder::RunDigest(*this, survey, writer);
     }
     else
     {
         // alias to the type of the report builder
         using Builder = SurveyReportBuilder<false, ListType>;
         // Building the survey results for each possible state
-        Builder::Run(*this, *survey, numSpace);
+        Builder::Run(*this, survey, numSpace);
     }
 }
 

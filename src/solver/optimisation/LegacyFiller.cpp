@@ -1,6 +1,6 @@
 #include "antares/solver/optimisation/LegacyFiller.h"
 
-using namespace Antares::Solver::Modeler::Api;
+using namespace Antares::Optimisation::LinearProblemApi;
 
 namespace Antares::Optimization
 {
@@ -10,20 +10,20 @@ LegacyFiller::LegacyFiller(const Antares::Optimization::PROBLEME_SIMPLEXE_NOMME*
 {
 }
 
-void LegacyFiller::addVariables(ILinearProblem& pb, LinearProblemData& data, FillContext& ctx)
+void LegacyFiller::addVariables(ILinearProblem& pb, ILinearProblemData& data, FillContext& ctx)
 {
     // Create the variables and set objective cost.
     CopyVariables(pb);
 }
 
-void LegacyFiller::addConstraints(ILinearProblem& pb, LinearProblemData& data, FillContext& ctx)
+void LegacyFiller::addConstraints(ILinearProblem& pb, ILinearProblemData& data, FillContext& ctx)
 {
     // Create constraints and set coefs
     CopyRows(pb);
     CopyMatrix(pb);
 }
 
-void LegacyFiller::addObjective(ILinearProblem& pb, LinearProblemData& data, FillContext& ctx)
+void LegacyFiller::addObjective(ILinearProblem& pb, ILinearProblemData& data, FillContext& ctx)
 {
     // nothing to do: objective coefficients are set along with variables definition
 }
@@ -32,13 +32,13 @@ void LegacyFiller::CopyMatrix(ILinearProblem& pb) const
 {
     for (int idxRow = 0; idxRow < problemeSimplexe_->NombreDeContraintes; ++idxRow)
     {
-        auto* ct = pb.getConstraint(GetConstraintName(idxRow));
+        auto* ct = pb.getConstraint(idxRow);
         int debutLigne = problemeSimplexe_->IndicesDebutDeLigne[idxRow];
         for (int idxCoef = 0; idxCoef < problemeSimplexe_->NombreDeTermesDesLignes[idxRow];
              ++idxCoef)
         {
             int pos = debutLigne + idxCoef;
-            auto* var = pb.getVariable(GetVariableName(problemeSimplexe_->IndicesColonnes[pos]));
+            auto* var = pb.getVariable(problemeSimplexe_->IndicesColonnes[pos]);
             ct->setCoefficient(var, problemeSimplexe_->CoefficientsDeLaMatriceDesContraintes[pos]);
         }
     }

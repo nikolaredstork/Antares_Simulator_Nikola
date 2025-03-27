@@ -111,6 +111,7 @@ struct CORRESPONDANCES_DES_CONTRAINTES_JOURNALIERES
 struct CORRESPONDANCES_DES_CONTRAINTES_HEBDOMADAIRES
 {
     std::vector<int> NumeroDeContrainteDesContraintesCouplantes;
+    std::vector<int> ShortTermStorageCumulation;
 };
 
 struct VALEURS_DE_NTC_ET_RESISTANCES
@@ -182,7 +183,7 @@ struct PROPERTIES
     bool penalizeVariationInjection;
 
     std::shared_ptr<Antares::Data::ShortTermStorage::Series> series;
-
+    std::vector<Antares::Data::ShortTermStorage::AdditionalConstraints> additionalConstraints;
     int clusterGlobalIndex;
     std::string name;
 };
@@ -332,73 +333,6 @@ struct ENERGIES_ET_PUISSANCES_HYDRAULIQUES
                                       bounding constraint on final level*/
 };
 
-class computeTimeStepLevel
-{
-private:
-    int step;
-    double level;
-
-    double capacity;
-    std::vector<double>& inflows;
-    std::vector<double>& ovf;
-    const std::vector<double>& turb;
-    double pumpRatio;
-    const std::vector<double>& pump;
-    double excessDown;
-
-public:
-    computeTimeStepLevel(const double& startLvl,
-                         std::vector<double>& infl,
-                         std::vector<double>& overfl,
-                         const std::vector<double>& H,
-                         double pumpEff,
-                         const std::vector<double>& Pump,
-                         double rc):
-        step(0),
-        level(startLvl),
-        capacity(rc),
-        inflows(infl),
-        ovf(overfl),
-        turb(H),
-        pumpRatio(pumpEff),
-        pump(Pump),
-        excessDown(0.)
-    {
-    }
-
-    void run()
-    {
-        excessDown = 0.;
-
-        level = level + inflows[step] - turb[step] + pumpRatio * pump[step];
-
-        if (level > capacity)
-        {
-            ovf[step] = level - capacity;
-            level = capacity;
-        }
-
-        if (level < 0)
-        {
-            excessDown = -level;
-            level = 0.;
-            inflows[step] += excessDown;
-        }
-    }
-
-    void prepareNextStep()
-    {
-        step++;
-
-        inflows[step] -= excessDown;
-    }
-
-    double getLevel()
-    {
-        return level;
-    }
-};
-
 struct RESERVE_JMOINS1
 {
     std::vector<double> ReserveHoraireJMoins1;
@@ -435,6 +369,7 @@ struct RESULTATS_HORAIRES
     std::vector<double> debordementsHoraires;
 
     std::vector<double> CoutsMarginauxHoraires;
+    std::vector<double> CoutsMarginauxHorairesCSR;
     std::vector<PRODUCTION_THERMIQUE_OPTIMALE> ProductionThermique; // index is pdtHebdo
 
     std::vector<::ShortTermStorage::RESULTS> ShortTermStorage;
@@ -502,6 +437,8 @@ struct PROBLEME_HEBDO
     std::vector<double> CoutDeDefaillancePositive;
     std::vector<double> CoutDeDefaillanceNegative;
 
+    std::vector<double> CoutDeDebordement;
+
     std::vector<PALIERS_THERMIQUES> PaliersThermiquesDuPays;
     std::vector<ENERGIES_ET_PUISSANCES_HYDRAULIQUES> CaracteristiquesHydrauliques;
 
@@ -531,6 +468,7 @@ struct PROBLEME_HEBDO
     bool exportMPSOnError = false;
     bool ExportStructure = false;
     bool NamedProblems = false;
+    bool exportSolutions = false;
 
     uint32_t HeureDansLAnnee = 0;
     bool LeProblemeADejaEteInstancie = false;

@@ -50,6 +50,7 @@ set(TARGET_LIBS #No alias
         misc
         model_antares
         antares-solver-ts-generator
+        shave-peaks-by-remix-hydro
 
         # lps : nothing
 
@@ -77,8 +78,9 @@ set(TARGET_LIBS #No alias
 
         # model_antares
         infeasible_problem_analysis
-        modeler_api
-        modeler-ortools-impl
+        linear-problem-api
+        linear-problem-data-impl
+        linear-problem-mpsolver-impl
 
         # solver-lib
         args_helper
