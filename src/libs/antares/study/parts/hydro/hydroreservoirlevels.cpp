@@ -50,9 +50,9 @@ ReservoirLevels::ReservoirLevels(TimeSeriesNumbers& timeseriesNumbers):
     avg.reset(1L, DAYS_PER_YEAR);
     avg.fill(0.5);
     min.reset(1L, DAYS_PER_YEAR);
-    Buffer.reset(3L, DAYS_PER_YEAR, true);
-    Buffer.fillColumn(ReservoirLevels::maximum, 1.);
-    Buffer.fillColumn(ReservoirLevels::average, 0.5);
+    standardReservoirLevelMatrix.reset(3L, DAYS_PER_YEAR, true);
+    standardReservoirLevelMatrix.fillColumn(ReservoirLevels::maximum, 1.);
+    standardReservoirLevelMatrix.fillColumn(ReservoirLevels::average, 0.5);
 }
 
 bool ReservoirLevels::forceReload(bool reload) const
@@ -61,7 +61,7 @@ bool ReservoirLevels::forceReload(bool reload) const
     ret = max.forceReload(reload) && ret;
     ret = min.forceReload(reload) && ret;
     ret = avg.forceReload(reload) && ret;
-    ret = Buffer.forceReload(reload) && ret;
+    ret = standardReservoirLevelMatrix.forceReload(reload) && ret;
 
     return ret;
 }
@@ -71,7 +71,7 @@ void ReservoirLevels::markAsModified() const
     max.markAsModified();
     min.markAsModified();
     avg.markAsModified();
-    Buffer.markAsModified();
+    standardReservoirLevelMatrix.markAsModified();
 }
 
 bool ReservoirLevels::loadScenarizedReservoirLevels(const fs::path& folder)
@@ -101,7 +101,7 @@ bool ReservoirLevels::loadReservoirLevels(const std::string& areaID,
     fs::path filePath = folder / "common" / "capacity"
                         / std::string("reservoir_" + areaID + ".txt");
 
-    Buffer.reset(3, DAYS_PER_YEAR, true);
+    standardReservoirLevelMatrix.reset(3, DAYS_PER_YEAR, true);
 
     if (!usedBySolver)
     {
@@ -112,11 +112,11 @@ bool ReservoirLevels::loadReservoirLevels(const std::string& areaID,
             enabledModeIsChanged = true;
         }
 
-        ret = Buffer.loadFromCSVFile(filePath.string(),
-                                     3,
-                                     DAYS_PER_YEAR,
-                                     Matrix<>::optFixedSize,
-                                     &fileContent)
+        ret = standardReservoirLevelMatrix.loadFromCSVFile(filePath.string(),
+                                                           3,
+                                                           DAYS_PER_YEAR,
+                                                           Matrix<>::optFixedSize,
+                                                           &fileContent)
               && ret;
 
         if (enabledModeIsChanged)
@@ -126,11 +126,11 @@ bool ReservoirLevels::loadReservoirLevels(const std::string& areaID,
     }
     else if (!useScenarizedResevoirLevels)
     {
-        ret = Buffer.loadFromCSVFile(filePath.string(),
-                                     3,
-                                     DAYS_PER_YEAR,
-                                     Matrix<>::optFixedSize,
-                                     &fileContent)
+        ret = standardReservoirLevelMatrix.loadFromCSVFile(filePath.string(),
+                                                           3,
+                                                           DAYS_PER_YEAR,
+                                                           Matrix<>::optFixedSize,
+                                                           &fileContent)
               && ret;
 
         copyReservoirLevelsFromBuffer();
@@ -151,7 +151,7 @@ bool ReservoirLevels::saveToFolder(const std::string& areaID, const std::string&
     std::string buffer;
     buffer = folder + "/" + "common" + "/" + "capacity" + "/" + "reservoir_" + areaID + ".txt";
 
-    ret = Buffer.saveToCSVFile(buffer, /*decimal*/ 3) && ret;
+    ret = standardReservoirLevelMatrix.saveToCSVFile(buffer, /*decimal*/ 3) && ret;
 
     return ret;
 }
@@ -166,11 +166,11 @@ void ReservoirLevels::averageTimeSeries()
 void ReservoirLevels::copyReservoirLevelsFromBuffer()
 {
     min.timeSeries.reset(1U, DAYS_PER_YEAR, true);
-    min.timeSeries.pasteToColumn(0, Buffer[ReservoirLevels::minimum]);
+    min.timeSeries.pasteToColumn(0, standardReservoirLevelMatrix[ReservoirLevels::minimum]);
     avg.timeSeries.reset(1U, DAYS_PER_YEAR, true);
-    avg.timeSeries.pasteToColumn(0, Buffer[ReservoirLevels::average]);
+    avg.timeSeries.pasteToColumn(0, standardReservoirLevelMatrix[ReservoirLevels::average]);
     max.timeSeries.reset(1U, DAYS_PER_YEAR, true);
-    max.timeSeries.pasteToColumn(0, Buffer[ReservoirLevels::maximum]);
+    max.timeSeries.pasteToColumn(0, standardReservoirLevelMatrix[ReservoirLevels::maximum]);
 }
 
 } // namespace Antares::Data

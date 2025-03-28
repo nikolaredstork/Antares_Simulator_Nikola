@@ -103,10 +103,15 @@ public:
 
     // The buffer facilitates communication with the UI.
     // This functionality will no longer be required once the UI is fully deprecated.
-    Matrix<double> Buffer;
+    Matrix<double> standardReservoirLevelMatrix;
 
     TimeSeriesNumbers& timeseriesNumbers;
 };
+
+
+
+
+
 } // namespace Data
 } // namespace Antares
 
