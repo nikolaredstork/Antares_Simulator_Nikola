@@ -482,11 +482,6 @@ static bool SGDIntLoadFamily_General(Parameters& d,
         return Date::StringToDayOfTheWeek(d.firstWeekday, value);
     }
 
-    if (key == "use-scenarized-reservoir-levels")
-    {
-        return value.to<bool>(d.useScenarizedReservoirLevels);
-    }
-
     if (key == "geographic-trimming")
     {
         return value.to<bool>(d.geographicTrimming);
@@ -1103,6 +1098,11 @@ static bool SGDIntLoadFamily_Compatibility(Parameters& d,
     if (key == "hydro-pmax")
     {
         return StringToCompatibilityHydroPmax(d.compatibility.hydroPmax, value);
+    }
+
+    if (key == "use-scenarized-reservoir-levels")
+    {
+        return value.to<bool>(d.useScenarizedReservoirLevels);
     }
 
     return false;
@@ -1852,9 +1852,6 @@ void Parameters::saveToINI(IniFile& ini) const
 
         // Readonly
         section->add("readonly", readonly);
-
-        // Scenarized Hydro Reservoir Levels
-        section->add("use-scenarized-reservoir-levels", useScenarizedReservoirLevels);
     }
 
     // input
@@ -2035,6 +2032,11 @@ void Parameters::saveToINI(IniFile& ini) const
     {
         auto* section = ini.addSection("compatibility");
         section->add("hydro-pmax", CompatibilityHydroPmaxToCString(compatibility.hydroPmax));
+    }
+    {
+        // Scenarized Hydro Reservoir Levels
+        auto* section = ini.addSection("compatibility");
+        section->add("use-scenarized-reservoir-levels", useScenarizedReservoirLevels);
     }
 }
 
