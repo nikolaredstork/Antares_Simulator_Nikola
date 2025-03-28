@@ -95,7 +95,8 @@ void DataSeriesHydro::copyGenerationTS(const DataSeriesHydro& source)
     ror.timeSeries = source.ror.timeSeries;
     storage.timeSeries = source.storage.timeSeries;
     mingen.timeSeries = source.mingen.timeSeries;
-    reservoirLevels.standardReservoirLevelMatrix = source.reservoirLevels.standardReservoirLevelMatrix;
+    reservoirLevels.standardReservoirLevelMatrix = source.reservoirLevels
+                                                     .standardReservoirLevelMatrix;
 
     source.ror.unloadFromMemory();
     source.storage.unloadFromMemory();

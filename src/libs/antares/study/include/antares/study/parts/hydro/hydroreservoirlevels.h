@@ -108,10 +108,6 @@ public:
     TimeSeriesNumbers& timeseriesNumbers;
 };
 
-
-
-
-
 } // namespace Data
 } // namespace Antares
 
