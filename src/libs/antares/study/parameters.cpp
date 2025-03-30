@@ -2032,10 +2032,6 @@ void Parameters::saveToINI(IniFile& ini) const
     {
         auto* section = ini.addSection("compatibility");
         section->add("hydro-pmax", CompatibilityHydroPmaxToCString(compatibility.hydroPmax));
-    }
-    {
-        // Scenarized Hydro Reservoir Levels
-        auto* section = ini.addSection("compatibility");
         section->add("use-scenarized-reservoir-levels", useScenarizedReservoirLevels);
     }
 }
