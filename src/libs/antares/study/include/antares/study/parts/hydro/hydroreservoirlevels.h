@@ -56,9 +56,6 @@ public:
     */
     ReservoirLevels(TimeSeriesNumbers& timeseriesNumbers);
 
-    // Loading hydro reservoir levels
-    bool loadScenarizedReservoirLevels(const std::filesystem::path& folder);
-
     bool loadReservoirLevels(const std::string& areaID,
                              const std::filesystem::path& folder,
                              bool usedBySolver,
@@ -71,8 +68,6 @@ public:
     bool saveToFolder(const std::string& areaID, const std::string& folder) const;
 
     void averageTimeSeries();
-
-    void copyReservoirLevelsFromBuffer();
 
     /*!
      ** \brief Maximum Reservoir Levels (%)
@@ -108,6 +103,72 @@ public:
     TimeSeriesNumbers& timeseriesNumbers;
 };
 
+class ReservoirLevelsLoader
+{
+public:
+    ReservoirLevelsLoader(
+
+      const std::filesystem::path& baseFolder,
+      const std::string& areaID,
+      TimeSeries& max,
+      TimeSeries& avg,
+      TimeSeries& min):
+        _baseFolder(baseFolder),
+        _areaID(areaID),
+        _max(max),
+        _avg(avg),
+        _min(min)
+
+    {
+    }
+
+    virtual ~ReservoirLevelsLoader() = default;
+    virtual bool load() = 0;
+
+protected:
+    const std::filesystem::path& _baseFolder;
+    const std::string& _areaID;
+    TimeSeries& _max;
+    TimeSeries& _avg;
+    TimeSeries& _min;
+};
+
+class StandardReservoirLevelsLoader: public ReservoirLevelsLoader
+{
+public:
+    StandardReservoirLevelsLoader(const std::filesystem::path& baseFolder,
+                                  const std::string& areaID,
+                                  Matrix<double>& standardReservoirLevelMatrix,
+                                  TimeSeries& max,
+                                  TimeSeries& avg,
+                                  TimeSeries& min):
+        ReservoirLevelsLoader(baseFolder, areaID, max, avg, min),
+        _standardReservoirLevelMatrix(standardReservoirLevelMatrix)
+
+    {
+    }
+
+private:
+    Matrix<double>& _standardReservoirLevelMatrix;
+    bool load() override final;
+    void copyReservoirLevelsFromBuffer();
+};
+
+class ScenarizedReservoirLevelLoader: public ReservoirLevelsLoader
+{
+public:
+    ScenarizedReservoirLevelLoader(const std::filesystem::path& baseFolder,
+                                   const std::string& areaID,
+                                   TimeSeries& max,
+                                   TimeSeries& avg,
+                                   TimeSeries& min):
+        ReservoirLevelsLoader(baseFolder, areaID, max, avg, min)
+    {
+    }
+
+private:
+    bool load() override final;
+};
 } // namespace Data
 } // namespace Antares
 
