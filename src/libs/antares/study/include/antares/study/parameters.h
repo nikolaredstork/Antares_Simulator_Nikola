@@ -129,11 +129,6 @@ public:
     void resetAdqPatchParameters();
 
     /*!
-    ** \brief Handle priority between command-line option and configuration file
-    */
-    void handleOptimizationOptions(const StudyLoadOptions& options);
-
-    /*!
     ** \brief Try to detect then fix any bad value
     */
     void fixBadValues();
@@ -501,7 +496,7 @@ public:
     // Use reservoir levels Time-Series
     bool useScenarizedReservoirLevels;
 
-    // All options related to optimization
+    // All options related to linear & quadratic optimization
     Antares::Solver::Optimization::OptimizationOptions optOptions;
 
 private:
