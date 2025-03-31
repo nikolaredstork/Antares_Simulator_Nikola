@@ -298,7 +298,7 @@ BOOST_FIXTURE_TEST_CASE(Testing_load_reservoir_levels_matrices_equal_width, Fixt
 {
     bool ret = true;
 
-    study->parameters.useCustomScenario = true;
+    study->parameters.useScenarizedReservoirLevels = true;
 
     auto& maxDailyReservoirLevels = area_1->hydro.series->reservoirLevels.max.timeSeries;
     auto& minDailyReservoirLevels = area_1->hydro.series->reservoirLevels.min.timeSeries;
@@ -345,7 +345,7 @@ BOOST_FIXTURE_TEST_CASE(Testing_load_reservoir_levels_from_common_capacity_folde
 {
     bool ret = true;
 
-    study->parameters.useCustomScenario = false;
+    study->parameters.useScenarizedReservoirLevels = false;
 
     auto& maxDailyReservoirLevels = area_1->hydro.series->reservoirLevels.max.timeSeries;
     auto& minDailyReservoirLevels = area_1->hydro.series->reservoirLevels.min.timeSeries;
