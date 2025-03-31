@@ -73,10 +73,6 @@ void PartHydro::reset()
 
     inflowPattern.reset(1, DAYS_PER_YEAR, true);
     inflowPattern.fillColumn(0, 1.0);
-    // Remove reservoirLevel from reset function
-    reservoirLevel.reset(3, DAYS_PER_YEAR, true);
-    reservoirLevel.fillColumn(average, 0.5);
-    reservoirLevel.fillColumn(maximum, 1.);
     waterValues.reset(101, DAYS_PER_YEAR, true);
     dailyNbHoursAtGenPmax.reset(1, DAYS_PER_YEAR, true);
     dailyNbHoursAtGenPmax.fillColumn(0, 24.);
@@ -310,15 +306,6 @@ bool PartHydro::LoadFromFolder(Study& study, const fs::path& folder)
                                                             2,
                                                             Matrix<>::optFixedSize,
                                                             &study.dataBuffer)
-                && ret;
-
-          std::string reservoirId = "reservoir_" + area.id + ".txt";
-          fs::path reservoirPath = capacityPath / reservoirId;
-          ret = area.hydro.reservoirLevel.loadFromCSVFile(reservoirPath.string(),
-                                                          3,
-                                                          DAYS_PER_YEAR,
-                                                          Matrix<>::optFixedSize,
-                                                          &study.dataBuffer)
                 && ret;
 
           std::string waterValueId = "waterValues_" + area.id + ".txt";
@@ -600,11 +587,7 @@ bool PartHydro::SaveToFolder(const AreaList& areas,
           buffer.clear() << folder << SEP << "common" << SEP << "capacity" << SEP
                          << "inflowPattern_" << area.id << ".txt";
           ret = area.hydro.inflowPattern.saveToCSVFile(buffer, /*decimal*/ 3) && ret;
-          // reservoir, this is moved in the ReservoirLevels class
-          //   buffer.clear() << folder << SEP << "common" << SEP << "capacity" << SEP <<
-          //   "reservoir_"
-          //                  << area.id << ".txt";
-          //   ret = area.hydro.reservoirLevel.saveToCSVFile(buffer, /*decimal*/ 3) && ret;
+          // water values
           buffer.clear() << folder << SEP << "common" << SEP << "capacity" << SEP << "waterValues_"
                          << area.id << ".txt";
           ret = area.hydro.waterValues.saveToCSVFile(buffer, /*decimal*/ 2) && ret;
@@ -620,8 +603,6 @@ bool PartHydro::forceReload(bool reload) const
     bool ret = true;
     ret = creditModulation.forceReload(reload) && ret;
     ret = inflowPattern.forceReload(reload) && ret;
-    // This object is going to be deprecated
-    ret = reservoirLevel.forceReload(reload) && ret;
     ret = waterValues.forceReload(reload) && ret;
     ret = dailyNbHoursAtGenPmax.forceReload(reload) && ret;
     ret = dailyNbHoursAtPumpPmax.forceReload(reload) && ret;
@@ -641,8 +622,6 @@ bool PartHydro::forceReload(bool reload) const
 void PartHydro::markAsModified() const
 {
     inflowPattern.markAsModified();
-    // This object is going to be removed
-    reservoirLevel.markAsModified();
     waterValues.markAsModified();
     creditModulation.markAsModified();
     dailyNbHoursAtGenPmax.markAsModified();
@@ -671,12 +650,6 @@ void PartHydro::copyFrom(const PartHydro& rhs)
         inflowPattern = rhs.inflowPattern;
         inflowPattern.unloadFromMemory();
         rhs.inflowPattern.unloadFromMemory();
-    }
-    // reservoir levels, this is going to be deprecated
-    {
-        reservoirLevel = rhs.reservoirLevel;
-        reservoirLevel.unloadFromMemory();
-        rhs.reservoirLevel.unloadFromMemory();
     }
     // water values
     {
