@@ -138,8 +138,8 @@ bool ReservoirLevels::loadReservoirLevels(const std::string& areaID,
                                                  areaID,
                                                  standardReservoirLevelMatrix,
                                                  max,
-                                                 min,
-                                                 avg);
+                                                 avg,
+                                                 min);
         ret = loader->load() && ret;
     }
     return ret;

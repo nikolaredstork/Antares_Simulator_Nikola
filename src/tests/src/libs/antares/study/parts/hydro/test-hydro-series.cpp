@@ -324,7 +324,7 @@ BOOST_FIXTURE_TEST_CASE(Testing_load_reservoir_levels_matrices_equal_width, Fixt
             area_1->id,
             base_folder,
             study->usedByTheSolver,
-            study->parameters.useCustomScenario)
+            study->parameters.useScenarizedReservoirLevels)
           && ret;
 
     BOOST_CHECK(ret);
@@ -374,7 +374,7 @@ BOOST_FIXTURE_TEST_CASE(Testing_load_reservoir_levels_from_common_capacity_folde
             area_1->id,
             base_folder,
             study->usedByTheSolver,
-            study->parameters.useCustomScenario)
+            study->parameters.useScenarizedReservoirLevels)
           && ret;
 
     BOOST_CHECK(ret);
