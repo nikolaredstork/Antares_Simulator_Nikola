@@ -36,7 +36,7 @@ namespace Antares::Data
 {
 
 static std::unique_ptr<ReservoirLevelsLoader> createReservoirLevelLoader(
-  bool useScenarized,
+  Parameters::Compatibility::HydroRuleCurves hydroRuleCurves,
   const std::filesystem::path& filePath,
   const std::string& areaID,
   Matrix<double>& standardReservoirLevelMatrix,
@@ -44,11 +44,9 @@ static std::unique_ptr<ReservoirLevelsLoader> createReservoirLevelLoader(
   TimeSeries& avg,
   TimeSeries& min)
 {
-    if (useScenarized)
+    switch (hydroRuleCurves)
     {
-        return std::make_unique<ScenarizedReservoirLevelLoader>(filePath, areaID, max, avg, min);
-    }
-    else
+    case Parameters::Compatibility::HydroRuleCurves::Single:
     {
         return std::make_unique<StandardReservoirLevelsLoader>(filePath,
                                                                areaID,
@@ -56,6 +54,13 @@ static std::unique_ptr<ReservoirLevelsLoader> createReservoirLevelLoader(
                                                                max,
                                                                avg,
                                                                min);
+    }
+    case Parameters::Compatibility::HydroRuleCurves::Scenarized:
+    {
+        return std::make_unique<ScenarizedReservoirLevelLoader>(filePath, areaID, max, avg, min);
+    }
+    default:
+        throw std::invalid_argument("Value not supported for hydro rule curves compatibility");
     }
 }
 
@@ -98,10 +103,11 @@ void ReservoirLevels::markAsModified() const
     standardReservoirLevelMatrix.markAsModified();
 }
 
-bool ReservoirLevels::loadReservoirLevels(const std::string& areaID,
-                                          const std::filesystem::path& folder,
-                                          bool usedBySolver,
-                                          bool useScenarizedResevoirLevels)
+bool ReservoirLevels::loadReservoirLevels(
+  const std::string& areaID,
+  const std::filesystem::path& folder,
+  bool usedBySolver,
+  Parameters::Compatibility::HydroRuleCurves hydroRuleCurves)
 {
     bool ret = true;
 
@@ -133,7 +139,7 @@ bool ReservoirLevels::loadReservoirLevels(const std::string& areaID,
     }
     else
     {
-        auto loader = createReservoirLevelLoader(useScenarizedResevoirLevels,
+        auto loader = createReservoirLevelLoader(hydroRuleCurves,
                                                  folder,
                                                  areaID,
                                                  standardReservoirLevelMatrix,

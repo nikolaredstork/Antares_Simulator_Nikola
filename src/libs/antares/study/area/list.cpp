@@ -983,7 +983,7 @@ static bool AreaListLoadFromFolderSingleArea(Study& study,
                 area.id,
                 pathHydro,
                 study.usedByTheSolver,
-                study.parameters.useScenarizedReservoirLevels)
+                study.parameters.compatibility.hydroRuleCurves)
               && ret;
 
         area.hydro.series->resizeTSinDeratedMode(study.parameters.derated,

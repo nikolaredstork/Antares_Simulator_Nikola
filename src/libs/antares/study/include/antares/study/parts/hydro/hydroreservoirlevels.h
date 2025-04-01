@@ -21,6 +21,7 @@
 #ifndef __ANTARES_LIBS_STUDY_PARTS_HYDRO_RESERVOIR_LEVELS_H__
 #define __ANTARES_LIBS_STUDY_PARTS_HYDRO_RESERVOIR_LEVELS_H__
 
+#include <antares/study/parameters.h>
 #include <antares/array/matrix.h>
 #include <antares/series/series.h>
 #include <antares/study/version.h>
@@ -59,7 +60,7 @@ public:
     bool loadReservoirLevels(const std::string& areaID,
                              const std::filesystem::path& folder,
                              bool usedBySolver,
-                             bool useScenarizedResevoirLevels);
+                             Parameters::Compatibility::HydroRuleCurves hydroRuleCurves);
 
     bool forceReload(bool reload = false) const;
 

@@ -398,6 +398,12 @@ public:
             Hourly
         };
         HydroPmax hydroPmax = HydroPmax::Daily;
+        enum class HydroRuleCurves
+        {
+            Single,
+            Scenarized
+        };
+        HydroRuleCurves hydroRuleCurves = HydroRuleCurves::Single;
     };
 
     Compatibility compatibility;
@@ -493,9 +499,6 @@ public:
     // Naming constraints and variables in problems
     bool namedProblems;
 
-    // Use reservoir levels Time-Series
-    bool useScenarizedReservoirLevels;
-
     // All options related to linear & quadratic optimization
     Antares::Solver::Optimization::OptimizationOptions optOptions;
 
@@ -524,6 +527,10 @@ bool StringToSimulationMode(SimulationMode& mode, Yuni::CString<20, false> text)
 const char* CompatibilityHydroPmaxToCString(const Parameters::Compatibility::HydroPmax);
 bool StringToCompatibilityHydroPmax(Parameters::Compatibility::HydroPmax&, const std::string& text);
 
+const char* CompatibilityHydroRuleCurvesToCString(
+  const Parameters::Compatibility::HydroRuleCurves mode);
+bool StringToCompatibilityHydroRuleCurves(Parameters::Compatibility::HydroRuleCurves& mode,
+                                          const std::string& text);
 } // namespace Antares::Data
 
 #endif // __ANTARES_LIBS_STUDY_PARAMETERS_H__
