@@ -10,19 +10,19 @@
 #include "antares/solver/hydro/management/HydroErrorsCollector.h"
 #include "antares/solver/hydro/management/HydroInputsChecker.h"
 
-#include "fatal-error.h"
+#include <antares/antares/fatal-error.h>
 
 using namespace Antares::Solver;
 using namespace Antares::Data;
 
-struct Fixture
+struct HydroInputCheckerFixture
 {
-    Fixture(const Fixture& f) = delete;
-    Fixture(const Fixture&& f) = delete;
-    Fixture& operator=(const Fixture& f) = delete;
-    Fixture& operator=(const Fixture&& f) = delete;
+    HydroInputCheckerFixture(const HydroInputCheckerFixture& f) = delete;
+    HydroInputCheckerFixture(const HydroInputCheckerFixture&& f) = delete;
+    HydroInputCheckerFixture& operator=(const HydroInputCheckerFixture& f) = delete;
+    HydroInputCheckerFixture& operator=(const HydroInputCheckerFixture&& f) = delete;
 
-    Fixture()
+    HydroInputCheckerFixture()
     {
         // Simulation last day must be 365 so that final level checks succeeds
         study->parameters.simulationDays.end = 365;
@@ -60,7 +60,7 @@ struct Fixture
         area_1->hydro.series->reservoirLevels.avg.timeSeries.fill(0.6);
     }
 
-    ~Fixture() = default;
+    ~HydroInputCheckerFixture() = default;
 
     Study::Ptr study = std::make_shared<Study>();
     Area* area_1;
@@ -68,7 +68,7 @@ struct Fixture
       *study);
 };
 
-BOOST_FIXTURE_TEST_SUITE(hydro_inputs_checker, Fixture)
+BOOST_FIXTURE_TEST_SUITE(hydro_inputs_checker, HydroInputCheckerFixture)
 
 BOOST_AUTO_TEST_CASE(reservoir_levels_are_valid)
 {
