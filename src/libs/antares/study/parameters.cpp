@@ -2025,8 +2025,7 @@ void Parameters::saveToINI(IniFile& ini) const
     {
         auto* section = ini.addSection("compatibility");
         section->add("hydro-pmax", CompatibilityHydroPmaxToCString(compatibility.hydroPmax));
-        
-    }
+        }
 }
 
 bool Parameters::loadFromFile(const std::filesystem::path& filename, const StudyVersion& version)
