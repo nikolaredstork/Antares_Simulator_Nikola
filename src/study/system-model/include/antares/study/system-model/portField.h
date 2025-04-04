@@ -38,6 +38,13 @@ public:
         return id_;
     }
 
+    bool operator==(const PortField&) const = default;
+
+    bool operator<(const PortField& other) const
+    {
+        return id_ < other.id_;
+    }
+
 private:
     std::string id_;
 };

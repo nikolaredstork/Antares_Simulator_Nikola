@@ -47,6 +47,8 @@ public:
         return fields_;
     }
 
+    bool operator==(const PortType& other) const = default;
+
 private:
     std::string id_;
 
