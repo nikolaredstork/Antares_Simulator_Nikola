@@ -46,7 +46,7 @@ void HydroInputsChecker::Execute(uint year)
 {
     prepareInflows_.Run(year);
     minGenerationScaling_.Run(year);
-    if (!checkReservoirLevels(year))
+    if (!checkRuleCurves(year))
     {
         logs.error() << "hydro inputs checks: invalid reservoir levels in year " << year;
     }
@@ -98,7 +98,7 @@ bool HydroInputsChecker::checkMinGeneration(uint year)
     return ret;
 }
 
-bool HydroInputsChecker::checkReservoirLevels(uint year)
+bool HydroInputsChecker::checkRuleCurves(uint year)
 {
     bool ret = true;
     areas_.each(
