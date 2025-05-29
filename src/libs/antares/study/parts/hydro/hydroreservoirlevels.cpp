@@ -65,10 +65,10 @@ static std::unique_ptr<ReservoirLevelsLoader> createReservoirLevelLoader(
 }
 
 ReservoirLevels::ReservoirLevels(TimeSeriesNumbers& timeseriesNumbers):
+    timeseriesNumbers(timeseriesNumbers),
     max(timeseriesNumbers),
     min(timeseriesNumbers),
-    avg(timeseriesNumbers),
-    timeseriesNumbers(timeseriesNumbers)
+    avg(timeseriesNumbers)
 {
     timeseriesNumbers.registerSeries(&max, "max-reservoir-level");
     timeseriesNumbers.registerSeries(&min, "min-reservoir-level");

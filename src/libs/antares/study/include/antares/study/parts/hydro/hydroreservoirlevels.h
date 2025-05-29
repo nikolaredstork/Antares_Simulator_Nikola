@@ -70,6 +70,8 @@ public:
 
     void averageTimeSeries();
 
+    TimeSeriesNumbers& timeseriesNumbers;
+
     /*!
      ** \brief Maximum Reservoir Levels (%)
      **
@@ -101,7 +103,6 @@ public:
     // This functionality will no longer be required once the UI is fully deprecated.
     Matrix<double> standardReservoirLevelMatrix;
 
-    TimeSeriesNumbers& timeseriesNumbers;
 };
 
 class ReservoirLevelsLoader
