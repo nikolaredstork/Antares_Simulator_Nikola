@@ -104,13 +104,13 @@ bool HydroInputsChecker::checkRuleCurves(uint year)
     areas_.each(
       [this, &ret, &year](const Data::Area& area)
       {
-          const auto& minReservoirLevels = area.hydro.series->reservoirLevels.min.getColumn(year);
-          const auto& avgReservoirLevels = area.hydro.series->reservoirLevels.avg.getColumn(year);
-          const auto& maxReservoirLevels = area.hydro.series->reservoirLevels.max.getColumn(year);
+          const auto& minRuleCurves = area.hydro.series->ruleCurves.min.getColumn(year);
+          const auto& avgRuleCurves = area.hydro.series->ruleCurves.avg.getColumn(year);
+          const auto& maxRuleCurves = area.hydro.series->ruleCurves.max.getColumn(year);
 
-          const auto& tsIndexMin = area.hydro.series->reservoirLevels.min.getSeriesIndex(year);
-          const auto& tsIndexAvg = area.hydro.series->reservoirLevels.avg.getSeriesIndex(year);
-          const auto& tsIndexMax = area.hydro.series->reservoirLevels.max.getSeriesIndex(year);
+          const auto& tsIndexMin = area.hydro.series->ruleCurves.min.getSeriesIndex(year);
+          const auto& tsIndexAvg = area.hydro.series->ruleCurves.avg.getSeriesIndex(year);
+          const auto& tsIndexMax = area.hydro.series->ruleCurves.max.getSeriesIndex(year);
 
           uint32_t tsIndex = 0;
 
@@ -127,9 +127,9 @@ bool HydroInputsChecker::checkRuleCurves(uint year)
 
           for (unsigned int day = 0; day < DAYS_PER_YEAR; day++)
           {
-              if (minReservoirLevels[day] < 0 || avgReservoirLevels[day] < 0
-                  || minReservoirLevels[day] > maxReservoirLevels[day]
-                  || avgReservoirLevels[day] > 1. || maxReservoirLevels[day] > 1.)
+              if (minRuleCurves[day] < 0 || avgRuleCurves[day] < 0
+                  || minRuleCurves[day] > maxRuleCurves[day] || avgRuleCurves[day] > 1.
+                  || maxRuleCurves[day] > 1.)
               {
                   errorCollector_(area.name)
                     << "Reservoir levels in area " << area.id

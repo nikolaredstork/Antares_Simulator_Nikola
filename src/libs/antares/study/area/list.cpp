@@ -279,7 +279,7 @@ static bool AreaListSaveToFolderSingleArea(const Area& area,
             ret = area.hydro.series->saveToFolder(area.id, buffer, hydroPmax) && ret;
 
             buffer.clear() << folder << SEP << "input" << SEP << "hydro";
-            ret = area.hydro.series->reservoirLevels.saveToFolder(area.id, buffer) && ret;
+            ret = area.hydro.series->ruleCurves.saveToFolder(area.id, buffer) && ret;
         }
     }
 
@@ -979,7 +979,7 @@ static bool AreaListLoadFromFolderSingleArea(Study& study,
               "Value not supported for study.parameters.compatibility.hydroPmax");
         }
 
-        ret = area.hydro.series->reservoirLevels.loadReservoirLevels(
+        ret = area.hydro.series->ruleCurves.loadRuleCurves(
                 area.id,
                 pathHydro,
                 study.usedByTheSolver,

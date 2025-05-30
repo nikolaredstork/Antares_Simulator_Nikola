@@ -45,18 +45,18 @@ struct HydroInputCheckerFixture
         area_1->hydro.series->mingen.timeSeries.resize(1, HOURS_PER_YEAR);
         area_1->hydro.series->maxHourlyGenPower.timeSeries.resize(1, HOURS_PER_YEAR);
         area_1->hydro.series->maxHourlyPumpPower.timeSeries.resize(1, HOURS_PER_YEAR);
-        area_1->hydro.series->reservoirLevels.max.timeSeries.resize(1, DAYS_PER_YEAR);
-        area_1->hydro.series->reservoirLevels.avg.timeSeries.resize(1, DAYS_PER_YEAR);
-        area_1->hydro.series->reservoirLevels.min.timeSeries.resize(1, DAYS_PER_YEAR);
+        area_1->hydro.series->ruleCurves.max.timeSeries.resize(1, DAYS_PER_YEAR);
+        area_1->hydro.series->ruleCurves.avg.timeSeries.resize(1, DAYS_PER_YEAR);
+        area_1->hydro.series->ruleCurves.min.timeSeries.resize(1, DAYS_PER_YEAR);
 
         area_1->hydro.series->storage.timeSeries.fill(400.);
         area_1->hydro.series->ror.timeSeries.fill(100.);
         area_1->hydro.series->mingen.timeSeries.fill(50.);
         area_1->hydro.series->maxHourlyGenPower.timeSeries.fill(300.);
         area_1->hydro.series->maxHourlyPumpPower.timeSeries.fill(200.);
-        area_1->hydro.series->reservoirLevels.max.timeSeries.fill(0.8);
-        area_1->hydro.series->reservoirLevels.min.timeSeries.fill(0.4);
-        area_1->hydro.series->reservoirLevels.avg.timeSeries.fill(0.6);
+        area_1->hydro.series->ruleCurves.max.timeSeries.fill(0.8);
+        area_1->hydro.series->ruleCurves.min.timeSeries.fill(0.4);
+        area_1->hydro.series->ruleCurves.avg.timeSeries.fill(0.6);
     }
 
     ~HydroInputCheckerFixture() = default;
@@ -79,7 +79,7 @@ BOOST_AUTO_TEST_CASE(reservoir_levels_are_valid)
 BOOST_AUTO_TEST_CASE(reservoir_levels_are_invalid_case_1)
 {
     uint year = 0;
-    area_1->hydro.series->reservoirLevels.min.timeSeries[0][4] = 0.9;
+    area_1->hydro.series->ruleCurves.min.timeSeries[0][4] = 0.9;
     hydroInputsChecker->Execute(0);
     BOOST_CHECK_THROW(hydroInputsChecker->CheckForErrors(), FatalError);
 }
@@ -87,7 +87,7 @@ BOOST_AUTO_TEST_CASE(reservoir_levels_are_invalid_case_1)
 BOOST_AUTO_TEST_CASE(reservoir_levels_are_invalid_case_2)
 {
     uint year = 0;
-    area_1->hydro.series->reservoirLevels.max.timeSeries[0][4] = 1.1;
+    area_1->hydro.series->ruleCurves.max.timeSeries[0][4] = 1.1;
     hydroInputsChecker->Execute(0);
     BOOST_CHECK_THROW(hydroInputsChecker->CheckForErrors(), FatalError);
 }
@@ -95,7 +95,7 @@ BOOST_AUTO_TEST_CASE(reservoir_levels_are_invalid_case_2)
 BOOST_AUTO_TEST_CASE(reservoir_levels_are_invalid_case_3)
 {
     uint year = 0;
-    area_1->hydro.series->reservoirLevels.avg.timeSeries[0][4] = 1.1;
+    area_1->hydro.series->ruleCurves.avg.timeSeries[0][4] = 1.1;
     hydroInputsChecker->Execute(0);
     BOOST_CHECK_THROW(hydroInputsChecker->CheckForErrors(), FatalError);
 }
@@ -103,7 +103,7 @@ BOOST_AUTO_TEST_CASE(reservoir_levels_are_invalid_case_3)
 BOOST_AUTO_TEST_CASE(reservoir_levels_are_invalid_case_4)
 {
     uint year = 0;
-    area_1->hydro.series->reservoirLevels.min.timeSeries[0][4] = -0.1;
+    area_1->hydro.series->ruleCurves.min.timeSeries[0][4] = -0.1;
     hydroInputsChecker->Execute(0);
     BOOST_CHECK_THROW(hydroInputsChecker->CheckForErrors(), FatalError);
 }

@@ -301,9 +301,9 @@ BOOST_FIXTURE_TEST_CASE(Testing_load_reservoir_levels_matrices_equal_width, Fixt
     study->parameters.compatibility.hydroRuleCurves = Parameters::Compatibility::HydroRuleCurves::
       Scenarized;
 
-    auto& maxDailyReservoirLevels = area_1->hydro.series->reservoirLevels.max.timeSeries;
-    auto& minDailyReservoirLevels = area_1->hydro.series->reservoirLevels.min.timeSeries;
-    auto& avgDailyReservoirLevels = area_1->hydro.series->reservoirLevels.avg.timeSeries;
+    auto& maxDailyReservoirLevels = area_1->hydro.series->ruleCurves.max.timeSeries;
+    auto& minDailyReservoirLevels = area_1->hydro.series->ruleCurves.min.timeSeries;
+    auto& avgDailyReservoirLevels = area_1->hydro.series->ruleCurves.avg.timeSeries;
 
     maxDailyReservoirLevels.reset(3, DAYS_PER_YEAR);
     minDailyReservoirLevels.reset(3, DAYS_PER_YEAR);
@@ -321,7 +321,7 @@ BOOST_FIXTURE_TEST_CASE(Testing_load_reservoir_levels_matrices_equal_width, Fixt
     minDailyReservoirLevels.reset(3, DAYS_PER_YEAR);
     avgDailyReservoirLevels.reset(3, DAYS_PER_YEAR);
 
-    ret = area_1->hydro.series->reservoirLevels.loadReservoirLevels(
+    ret = area_1->hydro.series->ruleCurves.loadRuleCurves(
             area_1->id,
             base_folder,
             study->usedByTheSolver,
@@ -349,10 +349,10 @@ BOOST_FIXTURE_TEST_CASE(Testing_load_reservoir_levels_from_common_capacity_folde
     study->parameters.compatibility.hydroRuleCurves = Parameters::Compatibility::HydroRuleCurves::
       Single;
 
-    auto& maxDailyReservoirLevels = area_1->hydro.series->reservoirLevels.max.timeSeries;
-    auto& minDailyReservoirLevels = area_1->hydro.series->reservoirLevels.min.timeSeries;
-    auto& avgDailyReservoirLevels = area_1->hydro.series->reservoirLevels.avg.timeSeries;
-    auto& reservoirLevels = area_1->hydro.series->reservoirLevels.standardRuleCurvesGUI;
+    auto& maxDailyReservoirLevels = area_1->hydro.series->ruleCurves.max.timeSeries;
+    auto& minDailyReservoirLevels = area_1->hydro.series->ruleCurves.min.timeSeries;
+    auto& avgDailyReservoirLevels = area_1->hydro.series->ruleCurves.avg.timeSeries;
+    auto& reservoirLevels = area_1->hydro.series->ruleCurves.standardRuleCurvesGUI;
 
     reservoirLevels.reset(3, DAYS_PER_YEAR, true);
 
@@ -372,7 +372,7 @@ BOOST_FIXTURE_TEST_CASE(Testing_load_reservoir_levels_from_common_capacity_folde
 
     reservoirLevels.reset(3, DAYS_PER_YEAR, true);
 
-    ret = area_1->hydro.series->reservoirLevels.loadReservoirLevels(
+    ret = area_1->hydro.series->ruleCurves.loadRuleCurves(
             area_1->id,
             base_folder,
             study->usedByTheSolver,

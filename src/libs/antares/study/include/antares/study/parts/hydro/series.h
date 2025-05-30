@@ -136,7 +136,7 @@ public:
     */
     TimeSeries maxHourlyPumpPower;
 
-    RuleCurves reservoirLevels;
+    RuleCurves ruleCurves;
 
     // Getters for generation (ror, storage and mingen) and
     // max power (generation and pumping) number of TS

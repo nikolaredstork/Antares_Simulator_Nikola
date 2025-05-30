@@ -57,10 +57,10 @@ public:
     */
     RuleCurves(TimeSeriesNumbers& timeseriesNumbers);
 
-    bool loadReservoirLevels(const std::string& areaID,
-                             const std::filesystem::path& folder,
-                             bool usedBySolver,
-                             Parameters::Compatibility::HydroRuleCurves hydroRuleCurves);
+    bool loadRuleCurves(const std::string& areaID,
+                        const std::filesystem::path& folder,
+                        bool usedBySolver,
+                        Parameters::Compatibility::HydroRuleCurves hydroRuleCurves);
 
     bool forceReload(bool reload = false) const;
 
@@ -138,11 +138,11 @@ class StandardRuleCurvesLoader: public RuleCurvesLoader
 {
 public:
     StandardRuleCurvesLoader(const std::filesystem::path& baseFolder,
-                                  const std::string& areaID,
-                                  Matrix<double>& standardRuleCurvesGUI,
-                                  TimeSeries& max,
-                                  TimeSeries& avg,
-                                  TimeSeries& min):
+                             const std::string& areaID,
+                             Matrix<double>& standardRuleCurvesGUI,
+                             TimeSeries& max,
+                             TimeSeries& avg,
+                             TimeSeries& min):
         RuleCurvesLoader(baseFolder, areaID, max, avg, min),
         standardRuleCurvesMatrixGUI_(standardRuleCurvesGUI)
 
@@ -152,17 +152,17 @@ public:
 private:
     Matrix<double>& standardRuleCurvesMatrixGUI_;
     bool load() override final;
-    void copyReservoirLevelsFromBuffer();
+    void copyRuleCurvesFromBuffer();
 };
 
 class ScenarizedRuleCurvesLoader: public RuleCurvesLoader
 {
 public:
     ScenarizedRuleCurvesLoader(const std::filesystem::path& baseFolder,
-                                   const std::string& areaID,
-                                   TimeSeries& max,
-                                   TimeSeries& avg,
-                                   TimeSeries& min):
+                               const std::string& areaID,
+                               TimeSeries& max,
+                               TimeSeries& avg,
+                               TimeSeries& min):
         RuleCurvesLoader(baseFolder, areaID, max, avg, min)
     {
     }

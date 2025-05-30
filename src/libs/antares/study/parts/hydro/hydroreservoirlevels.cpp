@@ -35,7 +35,7 @@ namespace fs = std::filesystem;
 namespace Antares::Data
 {
 
-static std::unique_ptr<RuleCurvesLoader> createReservoirLevelLoader(
+static std::unique_ptr<RuleCurvesLoader> createRuleCurvesLoader(
   Parameters::Compatibility::HydroRuleCurves hydroRuleCurves,
   const std::filesystem::path& filePath,
   const std::string& areaID,
@@ -49,11 +49,11 @@ static std::unique_ptr<RuleCurvesLoader> createReservoirLevelLoader(
     case Parameters::Compatibility::HydroRuleCurves::Single:
     {
         return std::make_unique<StandardRuleCurvesLoader>(filePath,
-                                                               areaID,
-                                                               standardRuleCurvesGUI,
-                                                               max,
-                                                               avg,
-                                                               min);
+                                                          areaID,
+                                                          standardRuleCurvesGUI,
+                                                          max,
+                                                          avg,
+                                                          min);
     }
     case Parameters::Compatibility::HydroRuleCurves::Scenarized:
     {
@@ -103,11 +103,10 @@ void RuleCurves::markAsModified() const
     standardRuleCurvesGUI.markAsModified();
 }
 
-bool RuleCurves::loadReservoirLevels(
-  const std::string& areaID,
-  const std::filesystem::path& folder,
-  bool usedBySolver,
-  Parameters::Compatibility::HydroRuleCurves hydroRuleCurves)
+bool RuleCurves::loadRuleCurves(const std::string& areaID,
+                                const std::filesystem::path& folder,
+                                bool usedBySolver,
+                                Parameters::Compatibility::HydroRuleCurves hydroRuleCurves)
 {
     bool ret = true;
 
@@ -139,13 +138,13 @@ bool RuleCurves::loadReservoirLevels(
     }
     else
     {
-        auto loader = createReservoirLevelLoader(hydroRuleCurves,
-                                                 folder,
-                                                 areaID,
-                                                 standardRuleCurvesGUI,
-                                                 max,
-                                                 avg,
-                                                 min);
+        auto loader = createRuleCurvesLoader(hydroRuleCurves,
+                                             folder,
+                                             areaID,
+                                             standardRuleCurvesGUI,
+                                             max,
+                                             avg,
+                                             min);
         ret = loader->load() && ret;
     }
     return ret;
@@ -194,17 +193,17 @@ bool StandardRuleCurvesLoader::load()
     bool ret = true;
 
     ret = standardRuleCurvesMatrixGUI_.loadFromCSVFile(filePath.string(),
-                                                        3,
-                                                        DAYS_PER_YEAR,
-                                                        Matrix<>::optFixedSize,
-                                                        &fileContent)
+                                                       3,
+                                                       DAYS_PER_YEAR,
+                                                       Matrix<>::optFixedSize,
+                                                       &fileContent)
           && ret;
-    copyReservoirLevelsFromBuffer();
+    copyRuleCurvesFromBuffer();
 
     return ret;
 }
 
-void StandardRuleCurvesLoader::copyReservoirLevelsFromBuffer()
+void StandardRuleCurvesLoader::copyRuleCurvesFromBuffer()
 {
     min_.timeSeries.reset(1U, DAYS_PER_YEAR, true);
     min_.timeSeries.pasteToColumn(0, standardRuleCurvesMatrixGUI_[RuleCurves::minimum]);

@@ -540,10 +540,8 @@ void SIM_RenseignementProblemeHebdo(const Study& study,
                 if (area.hydro.hardBoundsOnRuleCurves
                     && problem.CaracteristiquesHydrauliques[k].SuiviNiveauHoraire)
                 {
-                    const auto& minLvl = area.hydro.series->reservoirLevels.min.getColumn(
-                      problem.year);
-                    const auto& maxLvl = area.hydro.series->reservoirLevels.max.getColumn(
-                      problem.year);
+                    const auto& minLvl = area.hydro.series->ruleCurves.min.getColumn(problem.year);
+                    const auto& maxLvl = area.hydro.series->ruleCurves.max.getColumn(problem.year);
 
                     for (int day = 0; day < 7; day++)
                     {
@@ -816,8 +814,8 @@ void SIM_RenseignementProblemeHebdo(const Study& study,
                                                                 .hours[PasDeTempsDebut + 7 * 24]
                                                                 .dayYear;
 
-                                const auto& minLvl = area.hydro.series->reservoirLevels.min
-                                                       .getColumn(problem.year);
+                                const auto& minLvl = area.hydro.series->ruleCurves.min.getColumn(
+                                  problem.year);
                                 double V = std::max(0., WSL - minLvl[nextWeekFirstDay] * rc + WNI);
 
                                 if (Utils::isZero(WGU))
@@ -964,7 +962,7 @@ void SIM_RenseignementProblemeHebdo(const Study& study,
                                                                     .hours[PasDeTempsDebut + 7 * 24]
                                                                     .dayYear;
 
-                                    const auto& maxLvl = area.hydro.series->reservoirLevels.max
+                                    const auto& maxLvl = area.hydro.series->ruleCurves.max
                                                            .getColumn(problem.year);
 
                                     double V = std::max(0.,
