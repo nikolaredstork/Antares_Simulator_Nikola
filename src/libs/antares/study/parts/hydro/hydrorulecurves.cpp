@@ -261,4 +261,52 @@ void StandardRuleCurvesLoader::copyRuleCurvesFromBuffer()
     max_.timeSeries.pasteToColumn(0, standardRuleCurvesMatrixGUI_[RuleCurves::maximum]);
 }
 
+bool RuleCurvesLoaderService::LoadFromFolder(
+  const std::string& areaID,
+  const std::filesystem::path& folder,
+  bool usedBySolver,
+  Parameters::Compatibility::HydroRuleCurves hydroRuleCurves)
+{
+    bool ret = true;
+
+    if (!usedBySolver)
+    {
+        Matrix<>::BufferType fileContent;
+        fs::path filePath = folder / "common" / "capacity"
+                            / std::string("reservoir_" + areaID + ".txt");
+        ruleCurves_.standardRuleCurvesGUI.reset(3, DAYS_PER_YEAR, true);
+        bool enabledModeIsChanged = false;
+
+        if (JIT::enabled)
+        {
+            JIT::enabled = false;
+            enabledModeIsChanged = true;
+        }
+
+        ret = ruleCurves_.standardRuleCurvesGUI.loadFromCSVFile(filePath.string(),
+                                                                3,
+                                                                DAYS_PER_YEAR,
+                                                                Matrix<>::optFixedSize,
+                                                                &fileContent)
+              && ret;
+
+        if (enabledModeIsChanged)
+        {
+            JIT::enabled = true; // Back to the previous loading mode.
+        }
+    }
+    else
+    {
+        auto loader = createRuleCurvesLoader(hydroRuleCurves,
+                                             folder,
+                                             areaID,
+                                             ruleCurves_.standardRuleCurvesGUI,
+                                             ruleCurves_.max,
+                                             ruleCurves_.avg,
+                                             ruleCurves_.min);
+        ret = loader->load() && ret;
+    }
+    return ret;
+}
+
 } // namespace Antares::Data

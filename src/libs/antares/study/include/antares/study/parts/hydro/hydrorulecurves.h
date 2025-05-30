@@ -176,6 +176,23 @@ public:
 private:
     bool load() override final;
 };
+
+class RuleCurvesLoaderService
+{
+private:
+    RuleCurves& ruleCurves_;
+
+public:
+    RuleCurvesLoaderService(RuleCurves& ruleCurves):
+        ruleCurves_(ruleCurves)
+    {
+    }
+
+    bool LoadFromFolder(const std::string& areaID,
+                        const std::filesystem::path& folder,
+                        bool usedBySolver,
+                        Parameters::Compatibility::HydroRuleCurves hydroRuleCurves);
+};
 } // namespace Data
 } // namespace Antares
 
