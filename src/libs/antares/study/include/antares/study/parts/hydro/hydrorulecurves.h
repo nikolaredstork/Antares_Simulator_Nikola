@@ -57,11 +57,6 @@ public:
     */
     RuleCurves(TimeSeriesNumbers& timeseriesNumbers);
 
-    bool loadRuleCurves(const std::string& areaID,
-                        const std::filesystem::path& folder,
-                        bool usedBySolver,
-                        Parameters::Compatibility::HydroRuleCurves hydroRuleCurves);
-
     bool forceReload(bool reload = false) const;
 
     void markAsModified() const;
@@ -122,12 +117,6 @@ public:
 
     {
     }
-
-    static bool LoadFromFolder(const std::string& areaID,
-                               const std::filesystem::path& folder,
-                               bool usedBySolver,
-                               Parameters::Compatibility::HydroRuleCurves hydroRuleCurves,
-                               RuleCurves& ruleCurves);
 
     virtual ~RuleCurvesLoader() = default;
     virtual bool load() = 0;

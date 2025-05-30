@@ -34,36 +34,6 @@ namespace fs = std::filesystem;
 
 namespace Antares::Data
 {
-
-static std::unique_ptr<RuleCurvesLoader> createRuleCurvesLoader(
-  Parameters::Compatibility::HydroRuleCurves hydroRuleCurves,
-  const std::filesystem::path& filePath,
-  const std::string& areaID,
-  Matrix<double>& standardRuleCurvesGUI,
-  TimeSeries& max,
-  TimeSeries& avg,
-  TimeSeries& min)
-{
-    switch (hydroRuleCurves)
-    {
-    case Parameters::Compatibility::HydroRuleCurves::Single:
-    {
-        return std::make_unique<StandardRuleCurvesLoader>(filePath,
-                                                          areaID,
-                                                          standardRuleCurvesGUI,
-                                                          max,
-                                                          avg,
-                                                          min);
-    }
-    case Parameters::Compatibility::HydroRuleCurves::Scenarized:
-    {
-        return std::make_unique<ScenarizedRuleCurvesLoader>(filePath, areaID, max, avg, min);
-    }
-    default:
-        throw std::invalid_argument("Value not supported for hydro rule curves compatibility");
-    }
-}
-
 RuleCurves::RuleCurves(TimeSeriesNumbers& timeseriesNumbers):
     timeseriesNumbers(timeseriesNumbers),
     max(timeseriesNumbers),
@@ -103,53 +73,6 @@ void RuleCurves::markAsModified() const
     standardRuleCurvesGUI.markAsModified();
 }
 
-bool RuleCurves::loadRuleCurves(const std::string& areaID,
-                                const std::filesystem::path& folder,
-                                bool usedBySolver,
-                                Parameters::Compatibility::HydroRuleCurves hydroRuleCurves)
-{
-    bool ret = true;
-
-    if (!usedBySolver)
-    {
-        Matrix<>::BufferType fileContent;
-        fs::path filePath = folder / "common" / "capacity"
-                            / std::string("reservoir_" + areaID + ".txt");
-        standardRuleCurvesGUI.reset(3, DAYS_PER_YEAR, true);
-        bool enabledModeIsChanged = false;
-
-        if (JIT::enabled)
-        {
-            JIT::enabled = false;
-            enabledModeIsChanged = true;
-        }
-
-        ret = standardRuleCurvesGUI.loadFromCSVFile(filePath.string(),
-                                                    3,
-                                                    DAYS_PER_YEAR,
-                                                    Matrix<>::optFixedSize,
-                                                    &fileContent)
-              && ret;
-
-        if (enabledModeIsChanged)
-        {
-            JIT::enabled = true; // Back to the previous loading mode.
-        }
-    }
-    else
-    {
-        auto loader = createRuleCurvesLoader(hydroRuleCurves,
-                                             folder,
-                                             areaID,
-                                             standardRuleCurvesGUI,
-                                             max,
-                                             avg,
-                                             min);
-        ret = loader->load() && ret;
-    }
-    return ret;
-}
-
 bool RuleCurves::saveToFolder(const std::string& areaID, const std::string& folder) const
 {
     bool ret = true;
@@ -166,54 +89,6 @@ void RuleCurves::averageTimeSeries()
     max.averageTimeseries();
     min.averageTimeseries();
     avg.averageTimeseries();
-}
-
-bool RuleCurvesLoader::LoadFromFolder(const std::string& areaID,
-                                      const std::filesystem::path& folder,
-                                      bool usedBySolver,
-                                      Parameters::Compatibility::HydroRuleCurves hydroRuleCurves,
-                                      RuleCurves& ruleCurves)
-{
-    bool ret = true;
-
-    if (!usedBySolver)
-    {
-        Matrix<>::BufferType fileContent;
-        fs::path filePath = folder / "common" / "capacity"
-                            / std::string("reservoir_" + areaID + ".txt");
-        ruleCurves.standardRuleCurvesGUI.reset(3, DAYS_PER_YEAR, true);
-        bool enabledModeIsChanged = false;
-
-        if (JIT::enabled)
-        {
-            JIT::enabled = false;
-            enabledModeIsChanged = true;
-        }
-
-        ret = ruleCurves.standardRuleCurvesGUI.loadFromCSVFile(filePath.string(),
-                                                               3,
-                                                               DAYS_PER_YEAR,
-                                                               Matrix<>::optFixedSize,
-                                                               &fileContent)
-              && ret;
-
-        if (enabledModeIsChanged)
-        {
-            JIT::enabled = true; // Back to the previous loading mode.
-        }
-    }
-    else
-    {
-        auto loader = createRuleCurvesLoader(hydroRuleCurves,
-                                             folder,
-                                             areaID,
-                                             ruleCurves.standardRuleCurvesGUI,
-                                             ruleCurves.max,
-                                             ruleCurves.avg,
-                                             ruleCurves.min);
-        ret = loader->load() && ret;
-    }
-    return ret;
 }
 
 bool ScenarizedRuleCurvesLoader::load()
@@ -326,13 +201,13 @@ bool RuleCurvesLoaderService::LoadFromFolder(
     }
     else
     {
-        auto loader = this->createRuleCurvesLoader(hydroRuleCurves,
-                                                   folder,
-                                                   areaID,
-                                                   ruleCurves_.standardRuleCurvesGUI,
-                                                   ruleCurves_.max,
-                                                   ruleCurves_.avg,
-                                                   ruleCurves_.min);
+        auto loader = createRuleCurvesLoader(hydroRuleCurves,
+                                             folder,
+                                             areaID,
+                                             ruleCurves_.standardRuleCurvesGUI,
+                                             ruleCurves_.max,
+                                             ruleCurves_.avg,
+                                             ruleCurves_.min);
         ret = loader->load() && ret;
     }
     return ret;

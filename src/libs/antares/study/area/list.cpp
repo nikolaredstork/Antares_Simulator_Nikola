@@ -979,13 +979,6 @@ static bool AreaListLoadFromFolderSingleArea(Study& study,
               "Value not supported for study.parameters.compatibility.hydroPmax");
         }
 
-        /*ret = RuleCurvesLoader::LoadFromFolder(area.id,
-                                               pathHydro,
-                                               study.usedByTheSolver,
-                                               study.parameters.compatibility.hydroRuleCurves,
-                                               area.hydro.series->ruleCurves)
-              && ret;*/
-
         RuleCurvesLoaderService ruleCurvesLoaderService(area.hydro.series->ruleCurves);
 
         ret = ruleCurvesLoaderService.LoadFromFolder(area.id,
