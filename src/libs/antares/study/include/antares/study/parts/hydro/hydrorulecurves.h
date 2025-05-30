@@ -55,7 +55,7 @@ public:
     /*!
     ** \brief Default constructor
     */
-    RuleCurves(TimeSeriesNumbers& timeseriesNumbers);
+    explicit RuleCurves(TimeSeriesNumbers& timeseriesNumbers);
 
     bool forceReload(bool reload = false) const;
 
@@ -146,7 +146,7 @@ public:
 
 private:
     Matrix<double>& standardRuleCurvesMatrixGUI_;
-    bool load() override final;
+    bool load() final;
     void copyRuleCurvesFromBuffer();
 };
 
@@ -163,7 +163,7 @@ public:
     }
 
 private:
-    bool load() override final;
+    bool load() final;
 };
 
 class RuleCurvesLoaderService
@@ -172,7 +172,7 @@ private:
     RuleCurves& ruleCurves_;
 
 public:
-    RuleCurvesLoaderService(RuleCurves& ruleCurves):
+    explicit RuleCurvesLoaderService(RuleCurves& ruleCurves):
         ruleCurves_(ruleCurves)
     {
     }
