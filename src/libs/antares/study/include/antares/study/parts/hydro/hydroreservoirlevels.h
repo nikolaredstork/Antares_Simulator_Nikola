@@ -34,10 +34,10 @@ namespace Data
 {
 
 /*!
-** \brief Reservoir Levels Class
+** \brief Rule Curves class that support reservoir levels data
 */
 
-class ReservoirLevels
+class RuleCurves
 {
 public:
     enum
@@ -55,7 +55,7 @@ public:
     /*!
     ** \brief Default constructor
     */
-    ReservoirLevels(TimeSeriesNumbers& timeseriesNumbers);
+    RuleCurves(TimeSeriesNumbers& timeseriesNumbers);
 
     bool loadReservoirLevels(const std::string& areaID,
                              const std::filesystem::path& folder,
@@ -104,66 +104,66 @@ public:
     Matrix<double> standardRuleCurvesGUI;
 };
 
-class ReservoirLevelsLoader
+class RuleCurvesLoader
 {
 public:
-    ReservoirLevelsLoader(
+    RuleCurvesLoader(
 
       const std::filesystem::path& baseFolder,
       const std::string& areaID,
       TimeSeries& max,
       TimeSeries& avg,
       TimeSeries& min):
-        _baseFolder(baseFolder),
-        _areaID(areaID),
-        _max(max),
-        _avg(avg),
-        _min(min)
+        baseFolder_(baseFolder),
+        areaID_(areaID),
+        max_(max),
+        avg_(avg),
+        min_(min)
 
     {
     }
 
-    virtual ~ReservoirLevelsLoader() = default;
+    virtual ~RuleCurvesLoader() = default;
     virtual bool load() = 0;
 
 protected:
-    const std::filesystem::path& _baseFolder;
-    const std::string& _areaID;
-    TimeSeries& _max;
-    TimeSeries& _avg;
-    TimeSeries& _min;
+    const std::filesystem::path& baseFolder_;
+    const std::string& areaID_;
+    TimeSeries& max_;
+    TimeSeries& avg_;
+    TimeSeries& min_;
 };
 
-class StandardReservoirLevelsLoader: public ReservoirLevelsLoader
+class StandardRuleCurvesLoader: public RuleCurvesLoader
 {
 public:
-    StandardReservoirLevelsLoader(const std::filesystem::path& baseFolder,
+    StandardRuleCurvesLoader(const std::filesystem::path& baseFolder,
                                   const std::string& areaID,
                                   Matrix<double>& standardRuleCurvesGUI,
                                   TimeSeries& max,
                                   TimeSeries& avg,
                                   TimeSeries& min):
-        ReservoirLevelsLoader(baseFolder, areaID, max, avg, min),
-        _standardReservoirLevelMatrix(standardRuleCurvesGUI)
+        RuleCurvesLoader(baseFolder, areaID, max, avg, min),
+        standardRuleCurvesMatrixGUI_(standardRuleCurvesGUI)
 
     {
     }
 
 private:
-    Matrix<double>& _standardReservoirLevelMatrix;
+    Matrix<double>& standardRuleCurvesMatrixGUI_;
     bool load() override final;
     void copyReservoirLevelsFromBuffer();
 };
 
-class ScenarizedReservoirLevelLoader: public ReservoirLevelsLoader
+class ScenarizedRuleCurvesLoader: public RuleCurvesLoader
 {
 public:
-    ScenarizedReservoirLevelLoader(const std::filesystem::path& baseFolder,
+    ScenarizedRuleCurvesLoader(const std::filesystem::path& baseFolder,
                                    const std::string& areaID,
                                    TimeSeries& max,
                                    TimeSeries& avg,
                                    TimeSeries& min):
-        ReservoirLevelsLoader(baseFolder, areaID, max, avg, min)
+        RuleCurvesLoader(baseFolder, areaID, max, avg, min)
     {
     }
 

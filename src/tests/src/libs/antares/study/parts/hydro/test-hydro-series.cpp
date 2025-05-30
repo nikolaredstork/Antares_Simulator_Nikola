@@ -356,17 +356,17 @@ BOOST_FIXTURE_TEST_CASE(Testing_load_reservoir_levels_from_common_capacity_folde
 
     reservoirLevels.reset(3, DAYS_PER_YEAR, true);
 
-    reservoirLevels.fillColumn(ReservoirLevels::maximum, 1.);
-    reservoirLevels.fillColumn(ReservoirLevels::average, 0.5);
+    reservoirLevels.fillColumn(RuleCurves::maximum, 1.);
+    reservoirLevels.fillColumn(RuleCurves::average, 0.5);
 
-    reservoirLevels[ReservoirLevels::maximum][0] = 0.9;
-    reservoirLevels[ReservoirLevels::maximum][DAYS_PER_YEAR - 1] = 0.8;
+    reservoirLevels[RuleCurves::maximum][0] = 0.9;
+    reservoirLevels[RuleCurves::maximum][DAYS_PER_YEAR - 1] = 0.8;
 
-    reservoirLevels[ReservoirLevels::average][0] = 0.5;
-    reservoirLevels[ReservoirLevels::average][DAYS_PER_YEAR - 1] = 0.6;
+    reservoirLevels[RuleCurves::average][0] = 0.5;
+    reservoirLevels[RuleCurves::average][DAYS_PER_YEAR - 1] = 0.6;
 
-    reservoirLevels[ReservoirLevels::minimum][0] = 0.1;
-    reservoirLevels[ReservoirLevels::minimum][DAYS_PER_YEAR - 1] = 0.2;
+    reservoirLevels[RuleCurves::minimum][0] = 0.1;
+    reservoirLevels[RuleCurves::minimum][DAYS_PER_YEAR - 1] = 0.2;
 
     ret = reservoirLevels.saveToCSVFile(pathToReservoirLevels_file, 2) && ret;
 
