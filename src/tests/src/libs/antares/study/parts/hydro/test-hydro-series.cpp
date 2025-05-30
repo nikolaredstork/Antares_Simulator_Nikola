@@ -352,7 +352,7 @@ BOOST_FIXTURE_TEST_CASE(Testing_load_reservoir_levels_from_common_capacity_folde
     auto& maxDailyReservoirLevels = area_1->hydro.series->reservoirLevels.max.timeSeries;
     auto& minDailyReservoirLevels = area_1->hydro.series->reservoirLevels.min.timeSeries;
     auto& avgDailyReservoirLevels = area_1->hydro.series->reservoirLevels.avg.timeSeries;
-    auto& reservoirLevels = area_1->hydro.series->reservoirLevels.standardReservoirLevelMatrix;
+    auto& reservoirLevels = area_1->hydro.series->reservoirLevels.standardRuleCurvesGUI;
 
     reservoirLevels.reset(3, DAYS_PER_YEAR, true);
 

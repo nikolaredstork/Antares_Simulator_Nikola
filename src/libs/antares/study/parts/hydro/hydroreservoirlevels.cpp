@@ -39,7 +39,7 @@ static std::unique_ptr<ReservoirLevelsLoader> createReservoirLevelLoader(
   Parameters::Compatibility::HydroRuleCurves hydroRuleCurves,
   const std::filesystem::path& filePath,
   const std::string& areaID,
-  Matrix<double>& standardReservoirLevelMatrix,
+  Matrix<double>& standardRuleCurvesGUI,
   TimeSeries& max,
   TimeSeries& avg,
   TimeSeries& min)
@@ -50,7 +50,7 @@ static std::unique_ptr<ReservoirLevelsLoader> createReservoirLevelLoader(
     {
         return std::make_unique<StandardReservoirLevelsLoader>(filePath,
                                                                areaID,
-                                                               standardReservoirLevelMatrix,
+                                                               standardRuleCurvesGUI,
                                                                max,
                                                                avg,
                                                                min);
@@ -79,9 +79,9 @@ ReservoirLevels::ReservoirLevels(TimeSeriesNumbers& timeseriesNumbers):
     avg.reset(1L, DAYS_PER_YEAR);
     avg.fill(0.5);
     min.reset(1L, DAYS_PER_YEAR);
-    standardReservoirLevelMatrix.reset(3L, DAYS_PER_YEAR, true);
-    standardReservoirLevelMatrix.fillColumn(ReservoirLevels::maximum, 1.);
-    standardReservoirLevelMatrix.fillColumn(ReservoirLevels::average, 0.5);
+    standardRuleCurvesGUI.reset(3L, DAYS_PER_YEAR, true);
+    standardRuleCurvesGUI.fillColumn(ReservoirLevels::maximum, 1.);
+    standardRuleCurvesGUI.fillColumn(ReservoirLevels::average, 0.5);
 }
 
 bool ReservoirLevels::forceReload(bool reload) const
@@ -90,7 +90,7 @@ bool ReservoirLevels::forceReload(bool reload) const
     ret = max.forceReload(reload) && ret;
     ret = min.forceReload(reload) && ret;
     ret = avg.forceReload(reload) && ret;
-    ret = standardReservoirLevelMatrix.forceReload(reload) && ret;
+    ret = standardRuleCurvesGUI.forceReload(reload) && ret;
 
     return ret;
 }
@@ -100,7 +100,7 @@ void ReservoirLevels::markAsModified() const
     max.markAsModified();
     min.markAsModified();
     avg.markAsModified();
-    standardReservoirLevelMatrix.markAsModified();
+    standardRuleCurvesGUI.markAsModified();
 }
 
 bool ReservoirLevels::loadReservoirLevels(
@@ -116,7 +116,7 @@ bool ReservoirLevels::loadReservoirLevels(
         Matrix<>::BufferType fileContent;
         fs::path filePath = folder / "common" / "capacity"
                             / std::string("reservoir_" + areaID + ".txt");
-        standardReservoirLevelMatrix.reset(3, DAYS_PER_YEAR, true);
+        standardRuleCurvesGUI.reset(3, DAYS_PER_YEAR, true);
         bool enabledModeIsChanged = false;
 
         if (JIT::enabled)
@@ -125,7 +125,7 @@ bool ReservoirLevels::loadReservoirLevels(
             enabledModeIsChanged = true;
         }
 
-        ret = standardReservoirLevelMatrix.loadFromCSVFile(filePath.string(),
+        ret = standardRuleCurvesGUI.loadFromCSVFile(filePath.string(),
                                                            3,
                                                            DAYS_PER_YEAR,
                                                            Matrix<>::optFixedSize,
@@ -142,7 +142,7 @@ bool ReservoirLevels::loadReservoirLevels(
         auto loader = createReservoirLevelLoader(hydroRuleCurves,
                                                  folder,
                                                  areaID,
-                                                 standardReservoirLevelMatrix,
+                                                 standardRuleCurvesGUI,
                                                  max,
                                                  avg,
                                                  min);
@@ -157,7 +157,7 @@ bool ReservoirLevels::saveToFolder(const std::string& areaID, const std::string&
     std::string buffer;
     buffer = folder + "/" + "common" + "/" + "capacity" + "/" + "reservoir_" + areaID + ".txt";
 
-    ret = standardReservoirLevelMatrix.saveToCSVFile(buffer, /*decimal*/ 3) && ret;
+    ret = standardRuleCurvesGUI.saveToCSVFile(buffer, /*decimal*/ 3) && ret;
 
     return ret;
 }

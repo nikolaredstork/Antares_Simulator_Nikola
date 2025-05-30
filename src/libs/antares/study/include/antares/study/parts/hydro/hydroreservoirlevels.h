@@ -101,8 +101,7 @@ public:
 
     // The buffer facilitates communication with the UI.
     // This functionality will no longer be required once the UI is fully deprecated.
-    Matrix<double> standardReservoirLevelMatrix;
-
+    Matrix<double> standardRuleCurvesGUI;
 };
 
 class ReservoirLevelsLoader
@@ -140,12 +139,12 @@ class StandardReservoirLevelsLoader: public ReservoirLevelsLoader
 public:
     StandardReservoirLevelsLoader(const std::filesystem::path& baseFolder,
                                   const std::string& areaID,
-                                  Matrix<double>& standardReservoirLevelMatrix,
+                                  Matrix<double>& standardRuleCurvesGUI,
                                   TimeSeries& max,
                                   TimeSeries& avg,
                                   TimeSeries& min):
         ReservoirLevelsLoader(baseFolder, areaID, max, avg, min),
-        _standardReservoirLevelMatrix(standardReservoirLevelMatrix)
+        _standardReservoirLevelMatrix(standardRuleCurvesGUI)
 
     {
     }
