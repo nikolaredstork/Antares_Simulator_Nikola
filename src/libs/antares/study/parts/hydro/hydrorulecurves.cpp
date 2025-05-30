@@ -168,6 +168,54 @@ void RuleCurves::averageTimeSeries()
     avg.averageTimeseries();
 }
 
+bool RuleCurvesLoader::LoadFromFolder(const std::string& areaID,
+                                      const std::filesystem::path& folder,
+                                      bool usedBySolver,
+                                      Parameters::Compatibility::HydroRuleCurves hydroRuleCurves,
+                                      RuleCurves& ruleCurves)
+{
+    bool ret = true;
+
+    if (!usedBySolver)
+    {
+        Matrix<>::BufferType fileContent;
+        fs::path filePath = folder / "common" / "capacity"
+                            / std::string("reservoir_" + areaID + ".txt");
+        ruleCurves.standardRuleCurvesGUI.reset(3, DAYS_PER_YEAR, true);
+        bool enabledModeIsChanged = false;
+
+        if (JIT::enabled)
+        {
+            JIT::enabled = false;
+            enabledModeIsChanged = true;
+        }
+
+        ret = ruleCurves.standardRuleCurvesGUI.loadFromCSVFile(filePath.string(),
+                                                               3,
+                                                               DAYS_PER_YEAR,
+                                                               Matrix<>::optFixedSize,
+                                                               &fileContent)
+              && ret;
+
+        if (enabledModeIsChanged)
+        {
+            JIT::enabled = true; // Back to the previous loading mode.
+        }
+    }
+    else
+    {
+        auto loader = createRuleCurvesLoader(hydroRuleCurves,
+                                             folder,
+                                             areaID,
+                                             ruleCurves.standardRuleCurvesGUI,
+                                             ruleCurves.max,
+                                             ruleCurves.avg,
+                                             ruleCurves.min);
+        ret = loader->load() && ret;
+    }
+    return ret;
+}
+
 bool ScenarizedRuleCurvesLoader::load()
 {
     const std::filesystem::path path = baseFolder_ / "series" / areaID_;
