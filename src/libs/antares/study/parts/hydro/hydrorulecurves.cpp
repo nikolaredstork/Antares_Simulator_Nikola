@@ -261,6 +261,35 @@ void StandardRuleCurvesLoader::copyRuleCurvesFromBuffer()
     max_.timeSeries.pasteToColumn(0, standardRuleCurvesMatrixGUI_[RuleCurves::maximum]);
 }
 
+std::unique_ptr<RuleCurvesLoader> RuleCurvesLoaderService::createRuleCurvesLoader(
+  Parameters::Compatibility::HydroRuleCurves hydroRuleCurves,
+  const std::filesystem::path& filePath,
+  const std::string& areaID,
+  Matrix<double>& standardRuleCurvesGUI,
+  TimeSeries& max,
+  TimeSeries& avg,
+  TimeSeries& min)
+{
+    switch (hydroRuleCurves)
+    {
+    case Parameters::Compatibility::HydroRuleCurves::Single:
+    {
+        return std::make_unique<StandardRuleCurvesLoader>(filePath,
+                                                          areaID,
+                                                          standardRuleCurvesGUI,
+                                                          max,
+                                                          avg,
+                                                          min);
+    }
+    case Parameters::Compatibility::HydroRuleCurves::Scenarized:
+    {
+        return std::make_unique<ScenarizedRuleCurvesLoader>(filePath, areaID, max, avg, min);
+    }
+    default:
+        throw std::invalid_argument("Value not supported for hydro rule curves compatibility");
+    }
+}
+
 bool RuleCurvesLoaderService::LoadFromFolder(
   const std::string& areaID,
   const std::filesystem::path& folder,
@@ -297,13 +326,13 @@ bool RuleCurvesLoaderService::LoadFromFolder(
     }
     else
     {
-        auto loader = createRuleCurvesLoader(hydroRuleCurves,
-                                             folder,
-                                             areaID,
-                                             ruleCurves_.standardRuleCurvesGUI,
-                                             ruleCurves_.max,
-                                             ruleCurves_.avg,
-                                             ruleCurves_.min);
+        auto loader = this->createRuleCurvesLoader(hydroRuleCurves,
+                                                   folder,
+                                                   areaID,
+                                                   ruleCurves_.standardRuleCurvesGUI,
+                                                   ruleCurves_.max,
+                                                   ruleCurves_.avg,
+                                                   ruleCurves_.min);
         ret = loader->load() && ret;
     }
     return ret;

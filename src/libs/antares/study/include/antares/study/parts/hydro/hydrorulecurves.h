@@ -192,6 +192,16 @@ public:
                         const std::filesystem::path& folder,
                         bool usedBySolver,
                         Parameters::Compatibility::HydroRuleCurves hydroRuleCurves);
+
+private:
+    std::unique_ptr<RuleCurvesLoader> createRuleCurvesLoader(
+      Parameters::Compatibility::HydroRuleCurves hydroRuleCurves,
+      const std::filesystem::path& filePath,
+      const std::string& areaID,
+      Matrix<double>& standardRuleCurvesGUI,
+      TimeSeries& max,
+      TimeSeries& avg,
+      TimeSeries& min);
 };
 } // namespace Data
 } // namespace Antares
