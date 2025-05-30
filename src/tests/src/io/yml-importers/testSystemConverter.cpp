@@ -21,18 +21,18 @@
 
 #define WIN32_LEAN_AND_MEAN
 
+#include <unit_test_utils.h>
+
 #include <boost/test/unit_test.hpp>
 
 #include <antares/io/inputs/yml-system/converter.h>
-#include <antares/io/inputs/yml-system/parser.h>
-#include <antares/study/system-model/system.h>
 #include "antares/io/inputs/model-converter/modelConverter.h"
 #include "antares/io/inputs/yml-model/parser.h"
 #include "antares/study/system-model/library.h"
 
 using namespace std::string_literals;
 using namespace Antares::IO::Inputs;
-using namespace Antares::Study;
+using namespace Antares::ModelerStudy;
 
 struct LibraryObjects
 {
@@ -167,9 +167,7 @@ BOOST_FIXTURE_TEST_CASE(bad_library_model_format, LibraryObjects)
     BOOST_CHECK_THROW(SystemConverter::convert(systemObj, libraries), std::runtime_error);
 }
 
-BOOST_AUTO_TEST_CASE(Full_system_test)
-{
-    const auto libraryYaml = R"(
+static const auto libraryYaml_1 = R"(
         library:
           id: std
           description: Standard library
@@ -209,7 +207,7 @@ BOOST_AUTO_TEST_CASE(Full_system_test)
                   type: flow
     )"s;
 
-    const auto libraryYaml2 = R"(
+static const auto libraryYaml_2 = R"(
         library:
           id: mylib
           description: Extra library
@@ -235,7 +233,7 @@ BOOST_AUTO_TEST_CASE(Full_system_test)
                   definition: -demand
     )"s;
 
-    const auto systemYaml = R"(
+static const auto systemYaml = R"(
         system:
           id: system1
           description: basic description
@@ -269,12 +267,14 @@ BOOST_AUTO_TEST_CASE(Full_system_test)
                   value: 100
     )"s;
 
+BOOST_AUTO_TEST_CASE(Full_system_test)
+{
     YmlModel::Parser parserModel;
     YmlSystem::Parser parserSystem;
 
     std::vector<SystemModel::Library> libraries;
-    libraries.push_back(ModelConverter::convert(parserModel.parse(libraryYaml)));
-    libraries.push_back(ModelConverter::convert(parserModel.parse(libraryYaml2)));
+    libraries.push_back(ModelConverter::convert(parserModel.parse(libraryYaml_1)));
+    libraries.push_back(ModelConverter::convert(parserModel.parse(libraryYaml_2)));
 
     YmlSystem::System systemObj = parserSystem.parse(systemYaml);
     auto systemModel = SystemConverter::convert(systemObj, libraries);
@@ -290,4 +290,150 @@ BOOST_AUTO_TEST_CASE(Full_system_test)
 
     BOOST_CHECK_EQUAL(systemModel.Components().at("D").getModel()->Id(), "demand");
     BOOST_CHECK_EQUAL(std::stod(systemModel.Components().at("D").getParameterValue("demand")), 100);
+}
+
+constexpr size_t componentsPos = 10;
+constexpr size_t connectionEntryPos = componentsPos + 2;
+const std::string connectionFirstCompoMargin(connectionEntryPos, ' ');
+const std::string connectionOtherFieldsMargin = connectionFirstCompoMargin + "  ";
+
+struct RawConnection
+{
+    std::string firstCompo;
+    std::string firstPort;
+    std::string secondCompo;
+    std::string secondPort;
+};
+
+void AddConnectionsToSystem(std::string& system, const std::vector<RawConnection>& connections)
+{
+    for (const auto& [firstCompo, firstPort, secondCompo, secondPort]: connections)
+    {
+        system += "\n";
+        system += connectionFirstCompoMargin + "- component1: " + firstCompo;
+        system += "\n";
+        system += connectionOtherFieldsMargin + "port1: " + firstPort;
+        system += "\n";
+        system += connectionOtherFieldsMargin + "component2: " + secondCompo;
+        system += "\n";
+        system += connectionOtherFieldsMargin + "port2: " + secondPort;
+    }
+}
+
+struct PrepareYaml
+{
+    YmlModel::Parser parserModel;
+    YmlSystem::Parser parserSystem;
+    std::vector<SystemModel::Library> libraries;
+
+    std::string system = systemYaml;
+
+    PrepareYaml()
+    {
+        system += "\n";
+        system += std::string(componentsPos, ' ') + "connections:";
+        libraries.push_back(ModelConverter::convert(parserModel.parse(libraryYaml_1)));
+        libraries.push_back(ModelConverter::convert(parserModel.parse(libraryYaml_2)));
+    }
+};
+
+BOOST_FIXTURE_TEST_CASE(SystemWithAConnectionOfTwoSendingPorts, PrepareYaml)
+{
+    AddConnectionsToSystem(system,
+                           {{.firstCompo = "G",
+                             .firstPort = "injection_port",
+                             .secondCompo = "D",
+                             .secondPort = "injection_port"}});
+
+    YmlSystem::System systemObj = parserSystem.parse(system);
+    BOOST_CHECK_THROW(SystemConverter::convert(systemObj, libraries),
+                      SystemConverter::TwoFieldsOfSameRole);
+}
+
+BOOST_FIXTURE_TEST_CASE(TryPortSelfConnection, PrepareYaml)
+{
+    AddConnectionsToSystem(system,
+                           {{.firstCompo = "G",
+                             .firstPort = "injection_port",
+                             .secondCompo = "G",
+                             .secondPort = "injection_port"}});
+
+    YmlSystem::System systemObj = parserSystem.parse(system);
+    BOOST_CHECK_THROW(SystemConverter::convert(systemObj, libraries),
+                      SystemConverter::ConnectingPortToItSelf);
+}
+
+BOOST_FIXTURE_TEST_CASE(SystemWithSenderAndReceiverPort, PrepareYaml)
+{
+    const std::string port_id = "injection_port";
+    AddConnectionsToSystem(
+      system,
+      {{.firstCompo = "N", .firstPort = port_id, .secondCompo = "D", .secondPort = port_id}});
+
+    YmlSystem::System systemObj = parserSystem.parse(system);
+    auto systemModel = SystemConverter::convert(systemObj, libraries);
+
+    auto& components = systemModel.Components();
+
+    auto& component_N = components.at("N");
+    auto& component_G = components.at("G");
+    auto& component_D = components.at("D");
+
+    auto connections_to_N = component_N.componentConnectionsViaPort(port_id);
+    auto connections_to_G = component_G.componentConnectionsViaPort(port_id);
+    auto connections_to_D = component_D.componentConnectionsViaPort(port_id);
+
+    BOOST_CHECK(connections_to_N.size() == 1);
+    BOOST_CHECK(connections_to_G.size() == 0);
+    BOOST_CHECK(connections_to_D.size() == 1);
+
+    BOOST_CHECK(connections_to_N[0].component()->Id() == "D");
+    BOOST_CHECK(connections_to_D[0].component()->Id() == "N");
+}
+
+BOOST_FIXTURE_TEST_CASE(TryToConnectWithUnknownCompo, PrepareYaml)
+{
+    AddConnectionsToSystem(system,
+                           {{.firstCompo = "N",
+                             .firstPort = "injection_port",
+                             .secondCompo = "DD",
+                             .secondPort = "injection_port"}});
+    YmlSystem::System systemObj = parserSystem.parse(system);
+    BOOST_CHECK_THROW(SystemConverter::convert(systemObj, libraries), std::invalid_argument);
+}
+
+BOOST_FIXTURE_TEST_CASE(TryToConnectWithUnknownPort, PrepareYaml)
+{
+    AddConnectionsToSystem(system,
+                           {{.firstCompo = "N",
+                             .firstPort = "injection_port",
+                             .secondCompo = "D",
+                             .secondPort = "yosh!"}});
+    YmlSystem::System systemObj = parserSystem.parse(system);
+    BOOST_CHECK_THROW(SystemConverter::convert(systemObj, libraries), std::invalid_argument);
+}
+
+BOOST_FIXTURE_TEST_CASE(DuplicatedCompo, PrepareYaml)
+{
+    const auto duplicatedCompo = R"(
+        system:
+          id: system1
+          description: basic description
+          model-libraries: [std, mylib]
+          components:
+            - id: N
+              model: std.node
+              scenario-group: group-234
+            - id: N
+              model: std.lib
+              scenario-group: group-234
+)";
+
+    YmlSystem::System systemObj = YmlSystem::Parser().parse(duplicatedCompo);
+    BOOST_CHECK_EXCEPTION(SystemConverter::convert(systemObj,
+                                                   {ModelConverter::convert(
+                                                     YmlModel::Parser().parse(libraryYaml_1))}),
+                          std::invalid_argument,
+                          checkMessage("System has at least two components with the same id "
+                                       "('N'), this is not supported"));
 }

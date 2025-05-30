@@ -388,29 +388,29 @@ inline void HydroManagement::prepareDailyOptimalGenerations(
             uint firstDay = calendar_.months[simulationMonth].daysYear.first;
             uint endDay = firstDay + daysPerMonth;
 
-            DONNEES_MENSUELLES* problem = H2O_J_Instanciation();
-            H2O_J_AjouterBruitAuCout(*problem);
-            problem->NombreDeJoursDuMois = (int)daysPerMonth;
-            problem->TurbineDuMois = hydro_specific.monthly[realmonth].MOG;
+            auto problem = DoneesOptimisationJournaliere::H2O_J_Instanciation();
+            H2O_J_AjouterBruitAuCout(problem);
+            problem.NombreDeJoursDuMois = (int)daysPerMonth;
+            problem.TurbineDuMois = hydro_specific.monthly[realmonth].MOG;
 
             uint dayMonth = 0;
             for (uint day = firstDay; day != endDay; ++day)
             {
-                problem->TurbineMax[dayMonth] = maxP[day] * maxE[day];
-                problem->TurbineMin[dayMonth] = data.dailyMinGen[day];
-                problem->TurbineCible[dayMonth] = dailyTargetGen[day];
+                problem.TurbineMax[dayMonth] = maxP[day] * maxE[day];
+                problem.TurbineMin[dayMonth] = data.dailyMinGen[day];
+                problem.TurbineCible[dayMonth] = dailyTargetGen[day];
                 dayMonth++;
             }
 
-            H2O_J_OptimiserUnMois(problem);
-            switch (problem->ResultatsValides)
+            H2O_J_OptimiserUnMois(&problem);
+            switch (problem.ResultatsValides)
             {
             case OUI:
                 dayMonth = 0;
                 for (uint day = firstDay; day != endDay; ++day)
                 {
                     ventilationResults.HydrauliqueModulableQuotidien[day] = problem
-                                                                              ->Turbine[dayMonth];
+                                                                              .Turbine[dayMonth];
                     dayMonth++;
                 }
                 break;
@@ -419,8 +419,6 @@ inline void HydroManagement::prepareDailyOptimalGenerations(
             case EMERGENCY_SHUT_DOWN:
                 throw fatalError(area.name.c_str(), y);
             }
-
-            H2O_J_Free(problem);
 
 #ifndef NDEBUG
             for (uint day = firstDay; day != endDay; ++day)
@@ -541,8 +539,6 @@ inline void HydroManagement::prepareDailyOptimalGenerations(
             case EMERGENCY_SHUT_DOWN:
                 throw fatalError(area.name.c_str(), y);
             }
-
-            H2O2_J_Free(problem);
         }
 
         if (debugData)

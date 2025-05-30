@@ -23,7 +23,7 @@
 #include "port.h"
 #include "portType.h"
 
-namespace Antares::Study::SystemModel
+namespace Antares::ModelerStudy::SystemModel
 {
 
 class PortFieldDefinition
@@ -36,12 +36,12 @@ public:
     {
     }
 
-    const Port& getPort() const
+    const Port& port() const
     {
         return port_;
     }
 
-    const PortField& Field() const
+    const PortField& field() const
     {
         return field_;
     }
@@ -57,4 +57,4 @@ private:
     Expression definition_;
 };
 
-} // namespace Antares::Study::SystemModel
+} // namespace Antares::ModelerStudy::SystemModel

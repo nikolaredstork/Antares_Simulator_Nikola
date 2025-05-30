@@ -137,14 +137,6 @@ const char* BindingConstraint::MathOperatorToCString(BindingConstraint::Operator
     return names[o];
 }
 
-BindingConstraint::~BindingConstraint()
-{
-#ifndef NDEBUG
-    pName = "<INVALID>";
-    pID = "<INVALID>";
-#endif
-}
-
 void BindingConstraint::name(const AnyString& newname)
 {
     pName = newname;
@@ -684,6 +676,11 @@ BindingConstraintStructures BindingConstraint::initLinkArrays() const
       clusterIndex,
       clustersAreaIndex,
     };
+}
+
+const BindingConstraint::clusterWeightMap& BindingConstraint::clustersAndWeights() const
+{
+    return pClusterWeights;
 }
 
 bool BindingConstraint::forceReload(bool reload) const

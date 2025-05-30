@@ -124,6 +124,7 @@ void Study::clear()
     // no folder
     ClearAndShrink(header.caption);
     ClearAndShrink(header.author);
+    ClearAndShrink(header.editor);
     folder.clear();
     folderInput.clear();
     folderOutput.clear();
@@ -380,12 +381,10 @@ bool Study::initializeRuntimeInfos()
 
 void Study::performTransformationsBeforeLaunchingSimulation()
 {
-// Those computations are also made from the TS-Generator (ts-generator/xcast/xcast.cpp)
-#ifndef NDEBUG
+    // Those computations are also made from the TS-Generator (ts-generator/xcast/xcast.cpp)
     logs.debug();
     logs.debug() << "applying transformations required by the simulation...";
     logs.debug() << "  > adding DSM values";
-#endif
 
     // ForEach area
     areas.each(
@@ -1090,7 +1089,6 @@ void Study::initializeProgressMeter(bool tsGeneratorOnly)
             }
             progression.add(y, Solver::Progression::sectTSGThermal, n);
         }
-
         progression.add(y, Solver::Progression::sectYear, ticksPerYear);
 
         if (parameters.yearByYear)

@@ -136,7 +136,7 @@ public:
     /*!
     ** \brief Destructor
     */
-    ~BindingConstraint();
+    ~BindingConstraint() = default;
     //@}
 
     //! \name / ID
@@ -372,6 +372,8 @@ public:
 
     template<class Env>
     std::string timeSeriesFileName(const Env& env) const;
+
+    const clusterWeightMap& clustersAndWeights() const;
 
 private:
     //! Raw name

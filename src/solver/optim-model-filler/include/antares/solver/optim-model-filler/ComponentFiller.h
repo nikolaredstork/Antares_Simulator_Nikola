@@ -28,11 +28,11 @@
 
 #include "ReadLinearConstraintVisitor.h"
 
-namespace Antares::Study::SystemModel
+namespace Antares::ModelerStudy::SystemModel
 {
 class Component;
 class Variable;
-} // namespace Antares::Study::SystemModel
+} // namespace Antares::ModelerStudy::SystemModel
 
 namespace Antares::Expressions::Visitors
 {
@@ -52,12 +52,22 @@ public:
     ComponentFiller() = delete;
     ComponentFiller(ComponentFiller& other) = delete;
     /// Create a ComponentFiller for a Component
-    explicit ComponentFiller(const Study::SystemModel::Component& component);
+    explicit ComponentFiller(const ModelerStudy::SystemModel::Component& component,
+                             VariableDictionary& variableDictionary);
 
     void addVariables(Optimisation::LinearProblemApi::ILinearProblem& pb,
                       Optimisation::LinearProblemApi::ILinearProblemData& data,
                       Optimisation::LinearProblemApi::FillContext& ctx) override;
 
+    void addConstraints(Optimisation::LinearProblemApi::ILinearProblem& pb,
+                        Optimisation::LinearProblemApi::ILinearProblemData& data,
+                        Optimisation::LinearProblemApi::FillContext& ctx) override;
+
+    void addObjective(Optimisation::LinearProblemApi::ILinearProblem& pb,
+                      Optimisation::LinearProblemApi::ILinearProblemData& data,
+                      Optimisation::LinearProblemApi::FillContext& ctx) override;
+
+private:
     void addStaticConstraint(Optimisation::LinearProblemApi::ILinearProblem& pb,
                              const LinearConstraint& linear_constraint,
                              const std::string& constraint_id) const;
@@ -66,20 +76,10 @@ public:
                                      const std::vector<LinearConstraint>& linear_constraints,
                                      const std::string& constraint_id) const;
 
-    void addConstraints(Optimisation::LinearProblemApi::ILinearProblem& pb,
-                        Optimisation::LinearProblemApi::ILinearProblemData& data,
-                        Optimisation::LinearProblemApi::FillContext& ctx) override;
-    void addObjective(Optimisation::LinearProblemApi::ILinearProblem& pb,
-                      Optimisation::LinearProblemApi::ILinearProblemData& data,
-                      Optimisation::LinearProblemApi::FillContext& ctx) override;
+    bool IsThisConstraintTimeDependent(const Expressions::Nodes::Node* node);
 
-    VariableDictionary variableDictionary;
-
-private:
-    static bool IsThisConstraintTimeDependent(const Expressions::Nodes::Node* node);
-
-    const Study::SystemModel::Component& component_;
-    const std::map<std::string, Study::SystemModel::Variable>& modelVariable_;
+    const ModelerStudy::SystemModel::Component& component_;
+    VariableDictionary& variableDictionary_;
 };
 
 class VariablesBulkAddition

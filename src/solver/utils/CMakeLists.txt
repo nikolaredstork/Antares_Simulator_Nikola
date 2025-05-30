@@ -5,12 +5,8 @@ set(SRC
         ortools_quadratic_wrapper.cpp
         include/antares/solver/utils/filename.h
         filename.cpp
-        include/antares/solver/utils/named_problem.h
-        named_problem.cpp
         include/antares/solver/utils/mps_utils.h
         mps_utils.cpp
-        include/antares/solver/utils/name_translator.h
-        name_translator.cpp
         include/antares/solver/utils/opt_period_string_generator.h
         opt_period_string_generator.cpp
         basis_status.cpp
@@ -28,9 +24,7 @@ if (NOT MSVC)
 endif ()
 target_link_libraries(utils
         PUBLIC
-        # Until issue here is resolved, link the whole archive: https://github.com/google/or-tools/discussions/4538
-        # TODO: keep an eye out for bug resolution in future versions of ortools (> 9.12)
-        $<LINK_LIBRARY:WHOLE_ARCHIVE,ortools::ortools>
+        ortools::ortools
         sirius_solver
         Antares::study
         Antares::result_writer
