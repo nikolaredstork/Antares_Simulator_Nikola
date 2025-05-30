@@ -27,7 +27,7 @@
 #include <antares/exception/LoadingError.hpp>
 #include <antares/inifile/inifile.h>
 #include <antares/logs/logs.h>
-#include <antares/study/parts/hydro/hydroreservoirlevels.h>
+#include <antares/study/parts/hydro/hydrorulecurves.h>
 #include "antares/study/study.h"
 
 namespace fs = std::filesystem;

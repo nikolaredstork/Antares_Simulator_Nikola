@@ -27,7 +27,7 @@
 #include <antares/study/version.h>
 
 #include "../../fwd.h"
-#include "hydroreservoirlevels.h"
+#include "hydrorulecurves.h"
 
 namespace Antares
 {
