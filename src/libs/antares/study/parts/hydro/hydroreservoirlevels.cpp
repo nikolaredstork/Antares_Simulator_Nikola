@@ -126,10 +126,10 @@ bool ReservoirLevels::loadReservoirLevels(
         }
 
         ret = standardRuleCurvesGUI.loadFromCSVFile(filePath.string(),
-                                                           3,
-                                                           DAYS_PER_YEAR,
-                                                           Matrix<>::optFixedSize,
-                                                           &fileContent)
+                                                    3,
+                                                    DAYS_PER_YEAR,
+                                                    Matrix<>::optFixedSize,
+                                                    &fileContent)
               && ret;
 
         if (enabledModeIsChanged)
