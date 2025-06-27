@@ -145,6 +145,36 @@ void OPT_ConstruireLaListeDesVariablesOptimiseesDuProblemeLineaire(PROBLEME_HEBD
             ProblemeAResoudre->TypeDeVariable[NombreDeVariables] = VARIABLE_BORNEE_INFERIEUREMENT;
             variableNamer.NegativeUnsuppliedEnergy(NombreDeVariables);
             NombreDeVariables++;
+
+        for (uint32_t bc = 0; bc < problemeHebdo->NombreDeContraintesCouplantes; ++bc)
+        {
+            const auto* bcPtr = problemeHebdo->MatriceDesContraintesCouplantes[bc].bindingConstraint.get();
+            if (!bcPtr || bcPtr->penalty() <= 0.)
+                continue;
+
+            variableManager.BindingConstraintPenaltyPos(bc, pdt) = -1;
+            variableManager.BindingConstraintPenaltyNeg(bc, pdt) = -1;
+
+            if (bcPtr->operatorType() == Antares::Data::BindingConstraint::opLess ||
+                bcPtr->operatorType() == Antares::Data::BindingConstraint::opBoth ||
+                bcPtr->operatorType() == Antares::Data::BindingConstraint::opEquality)
+            {
+                variableManager.BindingConstraintPenaltyPos(bc, pdt) = NombreDeVariables;
+                ProblemeAResoudre->TypeDeVariable[NombreDeVariables] = VARIABLE_BORNEE_INFERIEUREMENT;
+                variableNamer.BindingConstraintPenaltyPos(NombreDeVariables, bcPtr->name());
+                ++NombreDeVariables;
+            }
+
+            if (bcPtr->operatorType() == Antares::Data::BindingConstraint::opGreater ||
+                bcPtr->operatorType() == Antares::Data::BindingConstraint::opBoth ||
+                bcPtr->operatorType() == Antares::Data::BindingConstraint::opEquality)
+            {
+                variableManager.BindingConstraintPenaltyNeg(bc, pdt) = NombreDeVariables;
+                ProblemeAResoudre->TypeDeVariable[NombreDeVariables] = VARIABLE_BORNEE_INFERIEUREMENT;
+                variableNamer.BindingConstraintPenaltyNeg(NombreDeVariables, bcPtr->name());
+                ++NombreDeVariables;
+            }
+        }
         }
 
         for (uint32_t pays = 0; pays < problemeHebdo->NombreDePays; pays++)

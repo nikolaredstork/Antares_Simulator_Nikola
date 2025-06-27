@@ -794,6 +794,7 @@ The Binding Constraints section of the AntaresWeb interface for this section inv
   - Time-range (hourly, daily, weekly)
   - Numerical type (equality, bounded above, below, on both sides)
   - Status (active /enabled or inactive/disabled)
+  - Optional `penalty-cost` to soften the constraint (€/MWh)
 
 - **TAB "weights"**
   Definition of the coefficients given to each flow variable or generation variable in the formulation of the constraints. Two sub-tabs make it possible to handle the coefficients associated with transmission assets (links) and those associated with generation assets (thermal clusters). In both cases:

@@ -113,6 +113,8 @@ public:
     void LayerStorage(unsigned int variable, int layerIndex);
     void PositiveUnsuppliedEnergy(unsigned int variable);
     void NegativeUnsuppliedEnergy(unsigned int variable);
+    void BindingConstraintPenaltyPos(unsigned int variable, const std::string& name);
+    void BindingConstraintPenaltyNeg(unsigned int variable, const std::string& name);
     void AreaBalance(unsigned int variable);
 
 private:

@@ -4,6 +4,7 @@ add_boost_test(tests-binding_constraints
      SRC
      test_binding_constraints.cpp
      test_binding_constraints_with_mustrun.cpp
+     test_binding_constraints_penalty.cpp
      LIBS
      model_antares
      antares-solver-simulation

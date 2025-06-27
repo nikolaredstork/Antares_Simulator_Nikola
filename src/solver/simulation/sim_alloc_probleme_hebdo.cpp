@@ -187,6 +187,8 @@ void SIM_AllocationProblemePasDeTemps(PROBLEME_HEBDO& problem,
                                                                             0);
         variablesMapping.SIM_ShortTermStorage.CostVariationWithdrawal.assign(shortTermStorageCount,
                                                                              0);
+        variablesMapping.BindingConstraintPenaltyPos.assign(activeConstraints.size(), 0);
+        variablesMapping.BindingConstraintPenaltyNeg.assign(activeConstraints.size(), 0);
 
         problem.CorrespondanceCntNativesCntOptim[k].NumeroDeContrainteDesBilansPays.assign(nbPays,
                                                                                            0);

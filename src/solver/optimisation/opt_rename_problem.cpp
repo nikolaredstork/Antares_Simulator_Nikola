@@ -242,6 +242,16 @@ void VariableNamer::NegativeUnsuppliedEnergy(unsigned int variable)
     SetAreaElementNameHour(variable, "NegativeUnsuppliedEnergy");
 }
 
+void VariableNamer::BindingConstraintPenaltyPos(unsigned int variable, const std::string& name)
+{
+    SetAreaElementNameHour(variable, "BCPenaltyPos" + name);
+}
+
+void VariableNamer::BindingConstraintPenaltyNeg(unsigned int variable, const std::string& name)
+{
+    SetAreaElementNameHour(variable, "BCPenaltyNeg" + name);
+}
+
 void VariableNamer::AreaBalance(unsigned int variable)
 {
     SetAreaElementNameHour(variable, "AreaBalance");

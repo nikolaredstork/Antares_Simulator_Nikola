@@ -177,6 +177,11 @@ public:
     std::string group() const;
     void group(std::string group_name);
 
+    //! \name Penalty cost
+    //@{
+    double penalty() const { return penaltyCost; }
+    void penalty(double value) { penaltyCost = value; }
+
     /*!
     ** \brief Set the comments
     */
@@ -407,6 +412,8 @@ private:
     YString pComments;
     //! Group
     std::string group_ = "default";
+    //! Penalty cost for soft constraint handling
+    double penaltyCost = 0.;
 
     void clear();
 

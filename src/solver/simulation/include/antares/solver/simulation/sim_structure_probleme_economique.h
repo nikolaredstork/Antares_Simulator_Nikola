@@ -73,6 +73,9 @@ struct CORRESPONDANCES_DES_VARIABLES
         std::vector<int> CostVariationInjection;
         std::vector<int> CostVariationWithdrawal;
     } SIM_ShortTermStorage;
+
+    std::vector<int> BindingConstraintPenaltyPos;
+    std::vector<int> BindingConstraintPenaltyNeg;
 };
 
 struct CORRESPONDANCES_DES_CONTRAINTES

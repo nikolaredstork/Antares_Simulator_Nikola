@@ -68,6 +68,19 @@ void BindingConstraintHour::add(int pdt, int cntCouplante)
                                                                  builder.data.NombreDePasDeTemps);
     }
 
+    auto* bcPtr = MatriceDesContraintesCouplantes.bindingConstraint.get();
+    if (bcPtr && bcPtr->penalty() > 0.)
+    {
+        if (MatriceDesContraintesCouplantes.SensDeLaContrainteCouplante != '>')
+        {
+            builder.BindingConstraintPenaltyPos(cntCouplante, -1.0);
+        }
+        if (MatriceDesContraintesCouplantes.SensDeLaContrainteCouplante != '<')
+        {
+            builder.BindingConstraintPenaltyNeg(cntCouplante, 1.0);
+        }
+    }
+
     builder.SetOperator(MatriceDesContraintesCouplantes.SensDeLaContrainteCouplante);
     {
         ConstraintNamer namer(builder.data.NomDesContraintes);
