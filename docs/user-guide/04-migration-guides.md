@@ -34,13 +34,16 @@ the simulation will fail with a warning. We recommend removing these properties 
       input/st-storage/clusters/<area id>/list.ini)
     - `penalize-variation-withdrawal` boolean, default false (file
       input/st-storage/clusters/<area id>/list.ini)
+    - `weekly-levels` boolean, default false (file
+      input/st-storage/clusters/<area id>/list.ini)
 
 - Added 5 optional timeseries for each STS in existing directory `input/st-storage/series/<area id>/<ST id>/`
 	- `cost-injection.txt`
 	- `cost-withdrawal.txt`
 	- `cost-level.txt`
-	- `cost-variation-injection.txt`
-	- `cost-variation-withdrawal.txt`
+        - `cost-variation-injection.txt`
+        - `cost-variation-withdrawal.txt`
+        - `weekly-levels.txt` one line per week with two columns: initial and final level (in % of capacity)
 
 It is possible to provide only k of these time-series, for k=0..5. However, if present each file must contain either no value (same behavior as no file), or HOURS_PER_YEAR = 8760 coefficients in one column. These timeseries are located along existing series (rule-curves.txt, etc.).
 

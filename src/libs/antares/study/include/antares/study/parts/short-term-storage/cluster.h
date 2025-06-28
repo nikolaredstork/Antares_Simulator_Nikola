@@ -54,5 +54,8 @@ public:
     std::shared_ptr<Series> series = std::make_shared<Series>();
     mutable Properties properties;
     std::vector<std::shared_ptr<AdditionalConstraints>> additionalConstraints;
+
+    std::vector<double> weeklyInitial;
+    std::vector<double> weeklyFinal;
 };
 } // namespace Antares::Data::ShortTermStorage

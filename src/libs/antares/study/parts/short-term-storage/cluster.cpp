@@ -22,8 +22,10 @@
 
 #include <yuni/core/string.h>
 #include <yuni/io/file.h>
+#include <fstream>
 
 #include <antares/logs/logs.h>
+#include "antares/antares/constants.h"
 #include <antares/utils/utils.h>
 
 namespace Antares::Data::ShortTermStorage
@@ -80,6 +82,36 @@ bool STStorageCluster::loadSeries(const std::filesystem::path& folder,
 {
     bool ret = series->loadFromFolder(folder, studyVersion);
     series->fillDefaultSeriesIfEmpty(); // fill series if no file series
+
+    if (properties.weeklyLevels)
+    {
+        fs::path weeklyPath = folder / "weekly-levels.txt";
+        std::ifstream file(weeklyPath);
+        if (file.is_open())
+        {
+            double init = 0.0, fin = 0.0;
+            weeklyInitial.clear();
+            weeklyFinal.clear();
+            while (file >> init >> fin)
+            {
+                weeklyInitial.push_back(init);
+                weeklyFinal.push_back(fin);
+            }
+            if (weeklyInitial.size() != WEEKS_PER_YEAR)
+            {
+                logs.warning() << "Short-term storage " << id
+                               << " invalid weekly-levels.txt size: "
+                               << weeklyInitial.size() << ", expected "
+                               << WEEKS_PER_YEAR;
+            }
+        }
+        else
+        {
+            logs.info() << "Optional file not found: " << weeklyPath
+                        << ", default values will be used if needed";
+        }
+    }
+
     return ret;
 }
 

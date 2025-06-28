@@ -60,6 +60,9 @@ public:
     bool penalizeVariationWithdrawal = false;
     bool penalizeVariationInjection = false;
 
+    /// If true, weekly-levels.txt will be read for each STS
+    bool weeklyLevels = false;
+
     /// Enabled ?
     bool enabled = true;
 

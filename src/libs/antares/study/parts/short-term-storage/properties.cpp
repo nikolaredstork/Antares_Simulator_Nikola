@@ -99,6 +99,11 @@ bool Properties::loadKey(const IniFile::Property* p)
         return p->value.to<bool>(this->penalizeVariationInjection);
     }
 
+    if (p->key == "weekly-levels")
+    {
+        return p->value.to<bool>(this->weeklyLevels);
+    }
+
     if (p->key == "enabled")
     {
         return p->value.to<bool>(this->enabled);
@@ -123,6 +128,7 @@ void Properties::save(IniFile& ini) const
     s->add("initialleveloptim", this->initialLevelOptim);
     s->add("penalize-variation-injection", this->penalizeVariationInjection);
     s->add("penalize-variation-withdrawal", this->penalizeVariationWithdrawal);
+    s->add("weekly-levels", this->weeklyLevels);
     s->add("enabled", this->enabled);
 }
 
