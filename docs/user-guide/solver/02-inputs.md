@@ -347,8 +347,9 @@ The user may pick any area appearing in the area list and is then given access t
   - Efficiency (%): the energy efficiency of the storage, i.e. the ratio for a given volume between the energy taken from the system to be injected into the storage and the energy returned to the system during its withdrawal. This efficiency factor is applied when injecting energy into the storage.
   - Efficiency Withdrawal (%): Same behavior as the previous efficiency, this factor is applied when withdrawing energy from the storage.
   - Initial level (%): the imposed initial filling rate of the storage at the beginning of each optimisation period.
-  - Initial level optimal: if the parameter is activated, the "Initial level" parameter is ignored and the initial storage level is optimized by Antares for each optimization period to minimize its objective function.  
+  - Initial level optimal: if the parameter is activated, the "Initial level" parameter is ignored and the initial storage level is optimized by Antares for each optimization period to minimize its objective function.
     _Note: setting this parameter to "True" implies that there is no guarantee that the initial storage level of week N is the same as the final storage level of week N-1. However, the final level of week N is always equal to the initial level of the same week N plus/minus the injections/withdrawals occuring at the last hour of week N._
+  - Weekly levels: when set to `true`, the solver reads file `weekly-levels.txt` in each series folder to fix the storage level at the first and last hour of every week. The file contains 53 lines with two columns: the initial and final levels as fractions of the reservoir capacity.
 
 - "Injections/withdrawal capacities": a hourly time-series of modulation factors of the injection and withdrawal capacity for each hour (between 0 and 1), reflecting a lower availability of the structures during certain periods. At a given hour, the overall injection/withdrawal capacities of the storage are the product of this modulation factor by the "Withdrawal" and "Injection" parameters in the General data.
 

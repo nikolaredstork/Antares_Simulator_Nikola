@@ -62,7 +62,13 @@ static void importShortTermStorages(
             toInsert.initialLevelOptim = st.properties.initialLevelOptim;
             toInsert.penalizeVariationInjection = st.properties.penalizeVariationInjection;
             toInsert.penalizeVariationWithdrawal = st.properties.penalizeVariationWithdrawal;
+            toInsert.weeklyLevels = st.properties.weeklyLevels;
             toInsert.name = st.properties.name;
+            if (st.properties.weeklyLevels)
+            {
+                toInsert.weeklyInitial = st.weeklyInitial;
+                toInsert.weeklyFinal = st.weeklyFinal;
+            }
             for (const auto& constraint: st.additionalConstraints)
             {
                 if (constraint->enabled)

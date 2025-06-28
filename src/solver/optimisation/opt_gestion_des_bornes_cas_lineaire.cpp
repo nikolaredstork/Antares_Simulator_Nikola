@@ -178,10 +178,33 @@ static void setBoundsForShortTermStorage(PROBLEME_HEBDO* problemeHebdo,
 
                 // 3. Levels
                 int varLevel = variableManager.ShortTermStorageLevel(clusterGlobalIndex, pdtJour);
-                if (pdtHebdo == DernierPdtDeLIntervalle - 1 && !storage.initialLevelOptim)
+                if (storage.weeklyLevels)
                 {
-                    Xmin[varLevel] = Xmax[varLevel] = storage.reservoirCapacity
-                                                      * storage.initialLevel;
+                    if (pdtHebdo == 0 && storage.weeklyInitial.size() > problemeHebdo->weekInTheYear)
+                    {
+                        Xmin[varLevel] = Xmax[varLevel]
+                                         = storage.reservoirCapacity
+                                           * storage.weeklyInitial[problemeHebdo->weekInTheYear];
+                    }
+                    else if (pdtHebdo == DernierPdtDeLIntervalle - 1
+                             && storage.weeklyFinal.size() > problemeHebdo->weekInTheYear)
+                    {
+                        Xmin[varLevel] = Xmax[varLevel]
+                                         = storage.reservoirCapacity
+                                           * storage.weeklyFinal[problemeHebdo->weekInTheYear];
+                    }
+                    else
+                    {
+                        Xmin[varLevel] = storage.reservoirCapacity
+                                         * storage.series->lowerRuleCurve[hourInTheYear];
+                        Xmax[varLevel] = storage.reservoirCapacity
+                                         * storage.series->upperRuleCurve[hourInTheYear];
+                    }
+                }
+                else if (pdtHebdo == DernierPdtDeLIntervalle - 1 && !storage.initialLevelOptim)
+                {
+                    Xmin[varLevel] = Xmax[varLevel]
+                                      = storage.reservoirCapacity * storage.initialLevel;
                 }
                 else
                 {

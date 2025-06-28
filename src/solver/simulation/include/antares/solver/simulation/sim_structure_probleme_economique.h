@@ -182,6 +182,10 @@ struct PROPERTIES
     bool penalizeVariationWithdrawal;
     bool penalizeVariationInjection;
 
+    bool weeklyLevels;
+    std::vector<double> weeklyInitial;
+    std::vector<double> weeklyFinal;
+
     std::shared_ptr<Antares::Data::ShortTermStorage::Series> series;
     std::vector<std::shared_ptr<Antares::Data::ShortTermStorage::AdditionalConstraints>>
       additionalConstraints;
