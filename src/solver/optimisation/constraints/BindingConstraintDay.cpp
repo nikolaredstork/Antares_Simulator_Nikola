@@ -79,6 +79,19 @@ void BindingConstraintDay::add(int cntCouplante)
           .NumeroDeContrainteDesContraintesCouplantes[cntCouplante]
           = builder.data.nombreDeContraintes;
 
+        auto* bcPtr = MatriceDesContraintesCouplantes.bindingConstraint.get();
+        if (bcPtr && bcPtr->penalty() > 0.)
+        {
+            if (MatriceDesContraintesCouplantes.SensDeLaContrainteCouplante != '>')
+            {
+                builder.BindingConstraintPenaltyPos(cntCouplante, -1.0);
+            }
+            if (MatriceDesContraintesCouplantes.SensDeLaContrainteCouplante != '<')
+            {
+                builder.BindingConstraintPenaltyNeg(cntCouplante, 1.0);
+            }
+        }
+
         builder.SetOperator(MatriceDesContraintesCouplantes.SensDeLaContrainteCouplante);
         {
             ConstraintNamer namer(builder.data.NomDesContraintes);

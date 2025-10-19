@@ -96,6 +96,11 @@ std::vector<std::shared_ptr<BindingConstraint>> BindingConstraintLoader::load(En
             bc->group_ = p->value.c_str();
             continue;
         }
+        if (p->key == "penalty-cost")
+        {
+            bc->penaltyCost = p->value.to<double>();
+            continue;
+        }
 
         // initialize the values
         double w = .0;

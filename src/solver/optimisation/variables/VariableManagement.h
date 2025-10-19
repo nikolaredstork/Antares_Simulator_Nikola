@@ -107,6 +107,16 @@ public:
                                   int offset = 0,
                                   int delta = 0);
 
+    int& BindingConstraintPenaltyPos(unsigned int index,
+                                     unsigned int hourInWeek,
+                                     int offset = 0,
+                                     int delta = 0);
+
+    int& BindingConstraintPenaltyNeg(unsigned int index,
+                                     unsigned int hourInWeek,
+                                     int offset = 0,
+                                     int delta = 0);
+
 private:
     std::vector<CORRESPONDANCES_DES_VARIABLES>& CorrespondanceVarNativesVarOptim_;
     std::vector<int>& NumeroDeVariableStockFinal_;

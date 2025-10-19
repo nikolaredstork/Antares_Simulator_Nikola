@@ -516,6 +516,7 @@ They control which marginal price time granularity is printed, either regarding 
 
 * `filter-year-by-year`. Default value = hourly, daily, weekly, monthly, annual
 * `filter-synthesis`. Default value = hourly, daily, weekly, monthly, annual
+* `penalty-cost`. Optional penalty (€/MWh) applied when the constraint is relaxed
 
 #### Marginal cost for binding constraints
 

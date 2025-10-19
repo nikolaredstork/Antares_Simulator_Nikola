@@ -212,6 +212,18 @@ ConstraintBuilder& ConstraintBuilder::NegativeUnsuppliedEnergy(unsigned int inde
     return *this;
 }
 
+ConstraintBuilder& ConstraintBuilder::BindingConstraintPenaltyPos(unsigned int index, double coeff)
+{
+    AddVariable(variableManager_.BindingConstraintPenaltyPos(index, hourInWeek_), coeff);
+    return *this;
+}
+
+ConstraintBuilder& ConstraintBuilder::BindingConstraintPenaltyNeg(unsigned int index, double coeff)
+{
+    AddVariable(variableManager_.BindingConstraintPenaltyNeg(index, hourInWeek_), coeff);
+    return *this;
+}
+
 ConstraintBuilder& ConstraintBuilder::LayerStorage(unsigned area, unsigned layer, double coeff)
 {
     AddVariable(variableManager_.LayerStorage(area, layer), coeff);

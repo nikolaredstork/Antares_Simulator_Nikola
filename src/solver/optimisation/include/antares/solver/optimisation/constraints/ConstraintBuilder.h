@@ -160,6 +160,9 @@ public:
 
     ConstraintBuilder& NegativeUnsuppliedEnergy(unsigned int index, double coeff);
 
+    ConstraintBuilder& BindingConstraintPenaltyPos(unsigned int index, double coeff);
+    ConstraintBuilder& BindingConstraintPenaltyNeg(unsigned int index, double coeff);
+
     ConstraintBuilder& LayerStorage(unsigned area, unsigned layer, double coeff);
 
     //@}

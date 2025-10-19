@@ -231,3 +231,21 @@ int& VariableManager::NegativeUnsuppliedEnergy(unsigned int index,
     auto pdt = GetShiftedTimeStep(offset, delta, hourInWeek);
     return CorrespondanceVarNativesVarOptim_[pdt].NumeroDeVariableDefaillanceNegative[index];
 }
+
+int& VariableManager::BindingConstraintPenaltyPos(unsigned int index,
+                                                  unsigned int hourInWeek,
+                                                  int offset,
+                                                  int delta)
+{
+    auto pdt = GetShiftedTimeStep(offset, delta, hourInWeek);
+    return CorrespondanceVarNativesVarOptim_[pdt].BindingConstraintPenaltyPos[index];
+}
+
+int& VariableManager::BindingConstraintPenaltyNeg(unsigned int index,
+                                                  unsigned int hourInWeek,
+                                                  int offset,
+                                                  int delta)
+{
+    auto pdt = GetShiftedTimeStep(offset, delta, hourInWeek);
+    return CorrespondanceVarNativesVarOptim_[pdt].BindingConstraintPenaltyNeg[index];
+}

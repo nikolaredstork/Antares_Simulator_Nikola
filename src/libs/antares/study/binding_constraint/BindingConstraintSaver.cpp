@@ -50,6 +50,7 @@ bool BindingConstraintSaver::saveToEnv(EnvForSaving& env,
     env.section->add("filter-synthesis",
                      datePrecisionIntoString(bindingConstraint->pFilterSynthesis));
     env.section->add("group", bindingConstraint->group());
+    env.section->add("penalty-cost", bindingConstraint->penalty());
 
     if (!bindingConstraint->pComments.empty())
     {

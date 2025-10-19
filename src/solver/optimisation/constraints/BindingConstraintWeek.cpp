@@ -66,6 +66,19 @@ void BindingConstraintWeek::add(int cntCouplante)
         }
     }
 
+    auto* bcPtr = MatriceDesContraintesCouplantes.bindingConstraint.get();
+    if (bcPtr && bcPtr->penalty() > 0.)
+    {
+        if (MatriceDesContraintesCouplantes.SensDeLaContrainteCouplante != '>')
+        {
+            builder.BindingConstraintPenaltyPos(cntCouplante, -1.0);
+        }
+        if (MatriceDesContraintesCouplantes.SensDeLaContrainteCouplante != '<')
+        {
+            builder.BindingConstraintPenaltyNeg(cntCouplante, 1.0);
+        }
+    }
+
     builder.SetOperator(MatriceDesContraintesCouplantes.SensDeLaContrainteCouplante);
 
     data.NumeroDeContrainteDesContraintesCouplantes[cntCouplante] = builder.data

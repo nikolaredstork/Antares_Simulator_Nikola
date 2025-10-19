@@ -335,6 +335,24 @@ void OPT_InitialiserLesCoutsLineaire(PROBLEME_HEBDO* problemeHebdo,
                 ProblemeAResoudre->CoutLineaire[var] = problemeHebdo
                                                          ->CoutDeDefaillanceNegative[pays];
             }
+
+        for (uint32_t bc = 0; bc < problemeHebdo->NombreDeContraintesCouplantes; ++bc)
+        {
+            const auto* bcPtr = problemeHebdo->MatriceDesContraintesCouplantes[bc].bindingConstraint.get();
+            if (!bcPtr || bcPtr->penalty() <= 0.)
+                continue;
+
+            var = variableManager.BindingConstraintPenaltyPos(bc, pdtJour);
+            if (var >= 0 && var < ProblemeAResoudre->NombreDeVariables)
+            {
+                ProblemeAResoudre->CoutLineaire[var] = bcPtr->penalty();
+            }
+            var = variableManager.BindingConstraintPenaltyNeg(bc, pdtJour);
+            if (var >= 0 && var < ProblemeAResoudre->NombreDeVariables)
+            {
+                ProblemeAResoudre->CoutLineaire[var] = bcPtr->penalty();
+            }
+        }
         }
 
         pdtJour++;

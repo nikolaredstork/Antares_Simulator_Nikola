@@ -228,6 +228,7 @@ toc_depth: 2
 * Short term storage: penalty for storage control, injection and withdrawal flow gradient [ANT-2300] (#2491)
 * Make it possible to specify the final hydro reservoir level [ANT-1084] (#1521)
 * Major changes on the hydro behavior. Use overflow from the weekly optimization problem, don't recompute levels as a post-processing. These changes improve the handling of min-gen constraints for hydro reservoirs. [ANT-1825]
+* Binding constraints: optional penalty-cost with slack variables
 
 #### Removed features
 * Remove hydro hotstart (#2131)
